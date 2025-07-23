@@ -1,0 +1,417 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load core_extras %}
+
+{% block title %}Commercial Account Registration - Finance Tracker{% endblock %}
+
+{% block sidebar %}
+<!-- Hide sidebar on registration page -->
+{% endblock %}
+
+{% block auth_content %}
+<div class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="text-center mb-4 text-white">
+                    <h1 class="display-4"><i class="fas fa-wallet me-3"></i>Finance Tracker</h1>
+                    <p class="lead">Business Account Registration</p>
+                </div>
+                <div class="card shadow-lg rounded-4 border-0">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h4 class="text-center mb-0">Register Your Business</h4>
+                        <p class="text-center text-muted small">Create a commercial account to manage your business finances</p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <form method="post" enctype="multipart/form-data" id="commercialRegForm" novalidate>
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                                            <i class="fas fa-envelope text-muted me-2"></i>Email Address
+                                        </label>
+                                        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}" placeholder="Your email address" value="{{ form.email.value|default:'' }}">
+                                        {% if form.email.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.company_name.id_for_label }}" class="form-label">
+                                            <i class="fas fa-building text-muted me-2"></i>Company Name
+                                        </label>
+                                        <input type="text" name="{{ form.company_name.name }}" id="{{ form.company_name.id_for_label }}" class="form-control {% if form.company_name.errors %}is-invalid{% endif %}" placeholder="Your company name" value="{{ form.company_name.value|default:'' }}">
+                                        {% if form.company_name.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.company_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                            <i class="fas fa-lock text-muted me-2"></i>Password
+                                        </label>
+                                        <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" placeholder="Create a password">
+                                        {% if form.password1.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.password1.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            <ul class="small ps-3 mt-1 mb-0">
+                                                <li>Your password must contain at least 8 characters.</li>
+                                                <li>Your password can't be too similar to your company information.</li>
+                                                <li>Your password can't be a commonly used password.</li>
+                                                <li>Your password can't be entirely numeric.</li>
+                                            </ul>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                            <i class="fas fa-lock text-muted me-2"></i>Confirm Password
+                                        </label>
+                                        <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" placeholder="Confirm your password">
+                                        {% if form.password2.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.password2.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.business_type.id_for_label }}" class="form-label">
+                                            <i class="fas fa-briefcase text-muted me-2"></i>Business Type
+                                        </label>
+                                        <select name="{{ form.business_type.name }}" id="{{ form.business_type.id_for_label }}" class="form-select {% if form.business_type.errors %}is-invalid{% endif %}">
+                                            <option value="">Select business type</option>
+                                            {% for value, label in form.fields.business_type.choices %}
+                                            <option value="{{ value }}" {% if form.business_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.business_type.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.business_type.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                            <i class="fas fa-phone text-muted me-2"></i>Business Phone
+                                        </label>
+                                        <input type="text" name="{{ form.phone_number.name }}" id="{{ form.phone_number.id_for_label }}" class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}" placeholder="Your business phone number" value="{{ form.phone_number.value|default:'' }}">
+                                        {% if form.phone_number.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.phone_number.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.registration_number.id_for_label }}" class="form-label">
+                                            <i class="fas fa-id-card text-muted me-2"></i>Registration Number
+                                        </label>
+                                        <input type="text" name="{{ form.registration_number.name }}" id="{{ form.registration_number.id_for_label }}" class="form-control {% if form.registration_number.errors %}is-invalid{% endif %}" placeholder="Your business registration number" value="{{ form.registration_number.value|default:'' }}">
+                                        {% if form.registration_number.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.registration_number.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.tax_id.id_for_label }}" class="form-label">
+                                            <i class="fas fa-receipt text-muted me-2"></i>Tax ID
+                                        </label>
+                                        <input type="text" name="{{ form.tax_id.name }}" id="{{ form.tax_id.id_for_label }}" class="form-control {% if form.tax_id.errors %}is-invalid{% endif %}" placeholder="Your tax ID number" value="{{ form.tax_id.value|default:'' }}">
+                                        {% if form.tax_id.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.tax_id.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.business_address.id_for_label }}" class="form-label">
+                                    <i class="fas fa-map-marker-alt text-muted me-2"></i>Business Address
+                                </label>
+                                <textarea name="{{ form.business_address.name }}" id="{{ form.business_address.id_for_label }}" class="form-control {% if form.business_address.errors %}is-invalid{% endif %}" placeholder="Your business address" rows="3">{{ form.business_address.value|default:'' }}</textarea>
+                                {% if form.business_address.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.business_address.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="{{ form.business_document.id_for_label }}" class="form-label">
+                                    <i class="fas fa-file-alt text-muted me-2"></i>Business Documents
+                                </label>
+                                <input type="file" name="{{ form.business_document.name }}" id="{{ form.business_document.id_for_label }}" class="form-control {% if form.business_document.errors %}is-invalid{% endif %}" accept=".pdf,.jpg,.jpeg,.png">
+                                {% if form.business_document.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.business_document.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Upload business registration certificate, license, or other official document that verifies your business.</small>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                    <i class="fas fa-building me-2"></i>Register Business Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-4 text-center">
+                        <p class="mb-0">Looking for a personal account? <a href="{% url 'register' %}" class="text-decoration-none fw-bold">Register here</a></p>
+                        <p class="mt-2 mb-0">Already have an account? <a href="{% url 'login' %}" class="text-decoration-none fw-bold">Log in</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('commercialRegForm');
+        
+        // Client-side form validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const email = document.getElementById('{{ form.email.id_for_label }}');
+            const companyName = document.getElementById('{{ form.company_name.id_for_label }}');
+            const password1 = document.getElementById('{{ form.password1.id_for_label }}');
+            const password2 = document.getElementById('{{ form.password2.id_for_label }}');
+            const businessType = document.getElementById('{{ form.business_type.id_for_label }}');
+            const phoneNumber = document.getElementById('{{ form.phone_number.id_for_label }}');
+            
+            // Email validation
+            if (!email.value.trim() || !validateEmail(email.value)) {
+                isValid = false;
+                highlightError(email, 'Please enter a valid email address');
+            } else {
+                removeError(email);
+            }
+            
+            // Company name validation
+            if (!companyName.value.trim()) {
+                isValid = false;
+                highlightError(companyName, 'Company name is required');
+            } else {
+                removeError(companyName);
+            }
+            
+            // Password validation
+            if (!password1.value.trim() || password1.value.length < 8) {
+                isValid = false;
+                highlightError(password1, 'Password must be at least 8 characters');
+            } else {
+                removeError(password1);
+            }
+            
+            // Password confirmation validation
+            if (!password2.value.trim() || password1.value !== password2.value) {
+                isValid = false;
+                highlightError(password2, 'Passwords do not match');
+            } else {
+                removeError(password2);
+            }
+            
+            // Business type validation
+            if (!businessType.value) {
+                isValid = false;
+                highlightError(businessType, 'Please select a business type');
+            } else {
+                removeError(businessType);
+            }
+            
+            // Phone number validation
+            if (!phoneNumber.value.trim()) {
+                isValid = false;
+                highlightError(phoneNumber, 'Phone number is required');
+            } else {
+                removeError(phoneNumber);
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to the first error
+                const firstError = document.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        // Helper functions
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function highlightError(element, message) {
+            element.classList.add('is-invalid');
+            // Create error message if it doesn't exist
+            let errorDiv = element.parentNode.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                element.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = message;
+        }
+        
+        function removeError(element) {
+            element.classList.remove('is-invalid');
+            element.classList.add('is-valid');
+        }
+        
+        // Password strength indicator for both password fields
+        const password1 = document.getElementById('{{ form.password1.id_for_label }}');
+        if (password1) {
+            password1.addEventListener('input', function() {
+                const strength = calculatePasswordStrength(this.value);
+                updatePasswordStrengthIndicator(strength, this);
+            });
+        }
+        
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength += 1;
+            if (password.match(/[a-z]+/)) strength += 1;
+            if (password.match(/[A-Z]+/)) strength += 1;
+            if (password.match(/[0-9]+/)) strength += 1;
+            if (password.match(/[^a-zA-Z0-9]+/)) strength += 1;
+            return strength;
+        }
+        
+        function updatePasswordStrengthIndicator(strength, passwordInput) {
+            // Remove any existing indicator
+            const existingIndicator = passwordInput.parentNode.querySelector('.password-strength');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            
+            if (!passwordInput.value) return;
+            
+            // Create strength indicator
+            const strengthDiv = document.createElement('div');
+            strengthDiv.className = 'password-strength mt-2';
+            
+            // Create progress container
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'progress';
+            progressContainer.style.height = '5px';
+            
+            // Create progress bar
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressBar.style.width = `${(strength / 5) * 100}%`;
+            
+            // Set color based on strength
+            if (strength < 2) {
+                progressBar.className += ' bg-danger';
+                strengthDiv.innerHTML += '<small class="text-danger">Weak password</small>';
+            } else if (strength < 4) {
+                progressBar.className += ' bg-warning';
+                strengthDiv.innerHTML += '<small class="text-warning">Medium password</small>';
+            } else {
+                progressBar.className += ' bg-success';
+                strengthDiv.innerHTML += '<small class="text-success">Strong password</small>';
+            }
+            
+            progressContainer.appendChild(progressBar);
+            strengthDiv.prepend(progressContainer);
+            
+            // Add indicator after password input
+            passwordInput.parentNode.appendChild(strengthDiv);
+        }
+        
+        // File upload preview
+        const fileInput = document.getElementById('{{ form.business_document.id_for_label }}');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const fileName = this.files[0]?.name;
+                if (fileName) {
+                    const filePreview = document.createElement('small');
+                    filePreview.className = 'form-text text-success mt-1';
+                    filePreview.innerHTML = `<i class="fas fa-check-circle"></i> Selected file: ${fileName}`;
+                    
+                    // Remove previous preview if exists
+                    const existingPreview = this.parentNode.querySelector('.text-success');
+                    if (existingPreview) {
+                        existingPreview.remove();
+                    }
+                    
+                    this.parentNode.appendChild(filePreview);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

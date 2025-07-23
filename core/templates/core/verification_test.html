@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Email Verification Test{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Email Verification Test Page</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">This page displays all verification tokens in the system for testing purposes.</p>
+                    <p class="text-danger">WARNING: This page should be removed in production!</p>
+                    
+                    <h4 class="mt-4">Available Verification Links</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Token</th>
+                                    <th>Is Verified</th>
+                                    <th>Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for verification in verifications %}
+                                <tr>
+                                    <td>{{ verification.user.username }}</td>
+                                    <td>{{ verification.user.email }}</td>
+                                    <td><code>{{ verification.token }}</code></td>
+                                    <td>
+                                        {% if verification.is_verified %}
+                                            <span class="badge bg-success">Verified</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Not Verified</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ verification.created_at|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'verify_email' verification.token %}" class="btn btn-sm btn-primary">
+                                            Verify Now
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No verification tokens found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,945 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Personal Finance Tracker{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v={% now 'U' %}">
+    
+    <!-- Theme styles with toggle support -->
+    <style>
+        :root {
+            --text-color: #333333;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-header-bg: #f1f3f5;
+            --border-color: #dee2e6;
+            --link-color: #007bff;
+            --link-hover-color: #0056b3;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ffffff;
+            --navbar-height: 42px; /* Smaller header height */
+            --sidebar-width: 250px;
+            --sidebar-width-collapsed: 60px;
+            --transition-speed: 0.3s;
+        }
+
+        [data-bs-theme="dark"] {
+            --text-color: #f8f9fa; /* Brighter text for better visibility */
+            --bg-color: #212529;
+            --card-bg: #2c3034;
+            --card-header-bg: #343a40;
+            --border-color: #495057;
+            --link-color: #6ea8fe;
+            --link-hover-color: #9ec5fe;
+            --sidebar-bg: #1a1d20;
+            --sidebar-text: #f8f9fa; /* Brighter text */
+        }
+        
+        body {
+            background-color: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            transition: background-color var(--transition-speed);
+        }
+        
+        /* Text visibility */
+        p, h1, h2, h3, h4, h5, h6, .card-title, .card-text, label, 
+        .nav-item, .list-group-item, .table td, .table th, span {
+            color: var(--text-color) !important;
+        }
+        
+        /* Button text */
+        .btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-info {
+            color: #ffffff !important;
+        }
+        
+        /* Card styling */
+        .card {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .card-header {
+            background-color: var(--card-header-bg) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        /* Form controls */
+        .form-control, .form-select {
+            color: var(--text-color) !important;
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        /* Dropdown menu */
+        .dropdown-menu {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        .dropdown-item {
+            color: var(--text-color) !important;
+        }
+        
+        /* Table elements */
+        .table, .table td, .table th {
+            color: var(--text-color) !important;
+        }
+        
+        /* Links */
+        a:not(.btn) {
+            color: var(--link-color) !important;
+        }
+        
+        a:hover:not(.btn) {
+            color: var(--link-hover-color) !important;
+        }
+        
+        /* Sidebar */
+        #sidebar {
+            background-color: #212529 !important; /* Darker grey background instead of white */
+            color: var(--sidebar-text) !important;
+            width: var(--sidebar-width);
+            transition: width var(--transition-speed), transform var(--transition-speed);
+            height: calc(100vh - var(--navbar-height));
+            position: fixed;
+            top: var(--navbar-height);
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        
+        #sidebar.collapsed {
+            width: var(--sidebar-width-collapsed);
+        }
+        
+        /* Sidebar text and icons */
+        #sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        #sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            color: #38b6ff !important; /* Bright blue color for visibility */
+            font-size: 1.3rem !important; /* Larger icon size */
+            filter: drop-shadow(0 0 2px rgba(56, 182, 255, 0.3)) !important; /* Glow effect */
+        }
+        
+        #sidebar.collapsed .nav-link span,
+        #sidebar.collapsed .sidebar-brand h4 span,
+        #sidebar.collapsed .px-3 > div {
+            display: none !important; /* Force hide text and other elements in collapsed mode */
+        }
+        
+        #sidebar.collapsed .sidebar-brand h4 {
+            text-align: center;
+            font-size: 1rem;
+            padding: 0;
+        }
+        
+        #sidebar.collapsed .nav-link {
+            justify-content: center !important;
+            padding: 0.75rem 0;
+            text-align: center !important;
+        }
+        
+        #sidebar.collapsed .nav-link i {
+            margin-right: 0 !important;
+            font-size: 1.5rem !important; /* Even larger when collapsed */
+            color: #38b6ff !important; /* Bright blue color */
+            filter: drop-shadow(0 0 3px rgba(56, 182, 255, 0.5)) !important; /* Enhanced glow */
+        }
+        
+        #sidebar .app-brand h2 {
+            color: var(--sidebar-text) !important;
+        }
+        
+        /* Sidebar toggle button */
+        #sidebarToggle {
+            background-color: transparent;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        #sidebarToggle:hover {
+            transform: scale(1.1);
+        }
+        
+        #content {
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed);
+            padding: 20px;
+            min-height: calc(100vh - var(--navbar-height));
+            margin-top: var(--navbar-height);
+        }
+        
+        #content.expanded {
+            margin-left: var(--sidebar-width-collapsed);
+        }
+        
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Smaller navbar */
+        .navbar {
+            height: var(--navbar-height);
+            padding-top: 0;
+            padding-bottom: 0;
+            min-height: 42px; /* Even smaller blue line */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+        }
+        
+        /* User profile picture in navbar */
+        .navbar-profile-img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Profile picture placeholder */
+        .profile-placeholder {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width);
+            }
+            
+            #sidebar.collapsed {
+                transform: translateX(0);
+                width: var(--sidebar-width);
+            }
+            
+            #content {
+                margin-left: 0;
+            }
+            
+            #content.expanded {
+                margin-left: 0;
+            }
+            
+            body.sidebar-collapsed #sidebar {
+                transform: translateX(0);
+            }
+        }
+
+        #sidebar .sidebar-brand {
+            background-color: #000000; /* Black background */
+            background-image: none; /* Remove gradient */
+            padding: 20px 15px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+
+        #sidebar .sidebar-brand h4 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            padding: 0 0 5px 0;
+            color: white !important;
+            text-shadow: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #sidebar .sidebar-brand i {
+            font-size: 3.8rem; /* Larger icon */
+            margin-right: 0;
+            margin-bottom: 8px;
+            color: #38b6ff; /* Matching color to the image */
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        #sidebar .sidebar-brand span {
+            vertical-align: middle;
+            background: none;
+            -webkit-background-clip: initial;
+            -webkit-text-fill-color: initial;
+            background-clip: initial;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            font-size: 1.4rem;
+            color: white !important;
+        }
+
+        #sidebar.collapsed .sidebar-brand {
+            padding: 10px 5px;
+        }
+
+        #sidebar.collapsed .sidebar-brand h4 {
+            text-align: center;
+            font-size: 1.4rem;
+            padding: 0.25rem 0;
+            justify-content: center;
+        }
+
+        #sidebar.collapsed .sidebar-brand i {
+            margin-right: 0;
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+        }
+
+        /* Table improvements for dark mode */
+        [data-bs-theme="dark"] .table {
+            color: var(--text-color) !important;
+            border-color: var(--border-color);
+        }
+        
+        [data-bs-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        
+        [data-bs-theme="dark"] .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Form control visibility in dark mode */
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            background-color: #2c3034;
+            border-color: #495057;
+            color: #f8f9fa;
+        }
+        
+        [data-bs-theme="dark"] .form-control:focus,
+        [data-bs-theme="dark"] .form-select:focus {
+            background-color: #2c3034;
+            color: #f8f9fa;
+            border-color: #6ea8fe;
+            box-shadow: 0 0 0 0.25rem rgba(110, 168, 254, 0.25);
+        }
+        
+        /* Navbar visibility in dark mode */
+        [data-bs-theme="dark"] .navbar-dark {
+            background-color: #1a1d20 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar enhancements */
+        [data-bs-theme="dark"] .sidebar {
+            background-color: #1a1d20 !important;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-bs-theme="dark"] .sidebar .nav-link {
+            color: #f8f9fa !important;
+        }
+        
+        [data-bs-theme="dark"] .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        [data-bs-theme="dark"] .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left-color: #6ea8fe;
+            font-weight: 600;
+        }
+
+        /* Plexus background */
+        #plexus {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -10;
+            display: block;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Plexus canvas background -->
+    <canvas id="plexus"></canvas>
+    
+    <!-- Animated plexiglass shine effect -->
+    <div class="shine-effect"></div>
+    
+    <!-- Demo Mode Banner -->
+    {% if DEMO_MODE %}
+    <div class="demo-banner py-2 text-center animate__animated animate__fadeIn" style="background: linear-gradient(90deg, #f72585, #7209b7); font-weight: bold; color: white; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+        DEMO MODE - All data is sample data and no login is required
+    </div>
+    {% endif %}
+    
+    {% block auth_content %}
+    <!-- Navbar -->
+    <nav class="navbar fixed-top navbar-expand-md navbar-dark" style="height: var(--navbar-height); box-shadow: 0 2px 15px rgba(0,0,0,0.2);">
+        <div class="container-fluid">
+            <!-- Add sidebar toggle button to the header corner -->
+            <button id="sidebarToggle" class="btn btn-sm rounded-circle me-2" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                <i class="fas fa-chevron-left text-white" style="font-size: 0.85rem;"></i>
+            </button>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="navbar-brand d-flex justify-content-center flex-grow-1">
+                <a class="d-flex align-items-center text-decoration-none" href="{% url 'dashboard' %}">
+                    <i class="fas fa-chart-line me-2" style="color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.5);"></i>
+                    <span class="fw-bold" style="color: #ffffff !important; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">TRACK YOUR FINANCE</span>
+                </a>
+            </div>
+            
+            <div class="d-flex">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="border: 2px solid rgba(255,255,255,0.7); box-shadow: 0 3px 8px rgba(0,0,0,0.3);">
+                        {% if user.is_authenticated and user.userprofile.profile_picture %}
+                            <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile" class="navbar-profile-img">
+                        {% else %}
+                            <div class="profile-placeholder">
+                                <i class="fas fa-user fa-sm"></i>
+                            </div>
+                        {% endif %}
+                        <span style="color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">{% if user.is_authenticated %}{{ user.username }}{% else %}Demo User{% endif %}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu" style="border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; padding: 0.5rem;">
+                        <li><a class="dropdown-item d-flex align-items-center py-2" href="{% url 'settings' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% if user.is_authenticated %}
+                            {% if user.is_staff %}
+                            <li><a class="dropdown-item d-flex align-items-center py-2 text-danger" href="{% url 'admin_dashboard' %}"><i class="fas fa-shield-alt me-2"></i>Admin Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                        <li>
+                            <form method="post" action="{% url 'custom_logout' %}" class="px-2">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item d-flex align-items-center py-2">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </form>
+                        </li>
+                        {% else %}
+                        <li><a class="dropdown-item d-flex align-items-center py-2" href="{% url 'login' %}"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                        <li><a class="dropdown-item d-flex align-items-center py-2" href="{% url 'admin_login' %}"><i class="fas fa-shield-alt me-2"></i>Admin Login</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Register New Account</h6></li>
+                        <li><a class="dropdown-item d-flex align-items-center py-2" href="{% url 'register' %}"><i class="fas fa-user-plus me-2"></i>Personal Account</a></li>
+                        <li><a class="dropdown-item d-flex align-items-center py-2" href="{% url 'commercial_register' %}"><i class="fas fa-building me-2"></i>Business Account</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <!-- Removed the currency indicator -->
+        </div>
+    </nav>
+
+    <!-- Theme toggle button -->
+    <button class="theme-toggle btn" onclick="toggleTheme()" style="width: 55px; height: 55px; background-color: rgba(33, 37, 41, 0.9); border: 3px solid #38b6ff; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
+        <i class="fas fa-moon" id="theme-icon" style="color: #38b6ff; font-size: 1.4rem; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);"></i>
+    </button>
+    
+    <!-- Sidebar overlay for mobile -->
+    <div id="sidebarOverlay" class="position-fixed d-none" style="top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1040;"></div>
+
+    {% block sidebar %}
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div id="sidebar" class="col-auto">
+                <div class="sidebar-brand">
+                    <h4>
+                        <i class="fas fa-chart-pie"></i>
+                        <span>FinTracker</span>
+                    </h4>
+                </div>
+                
+                <div class="mt-2 mb-4 px-3">
+                    <div class="position-relative mx-auto" style="width: 80px; height: 80px; margin-bottom: 15px;">
+                        {% if user.is_authenticated and user.userprofile.profile_picture %}
+                            <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle border border-3 border-light shadow mb-3" width="80" height="80" style="object-fit: cover;">
+                        {% else %}
+                            <div class="profile-placeholder rounded-circle d-flex align-items-center justify-content-center border border-3 border-light shadow mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #4cc9f0, #4361ee); font-size: 2rem;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="text-center">
+                        <p class="fw-bold mb-1">{% if user.is_authenticated %}{{ user.username }}{% else %}Demo User{% endif %}</p>
+                        <p class="text-muted small mb-2">{% if user.is_authenticated %}{{ user.email }}{% else %}demo@example.com{% endif %}</p>
+                    </div>
+                </div>
+                
+                <hr class="mx-3" style="border-color: rgba(255,255,255,0.1);">
+                
+                <ul class="nav flex-column my-2">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/transactions/' %}active{% endif %}" href="{% url 'transaction_list' %}">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/categories/' %}active{% endif %}" href="{% url 'category_list' %}">
+                            <i class="fas fa-tags"></i>
+                            <span>Categories</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/budgets/' %}active{% endif %}" href="{% url 'budget_list' %}">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Budgets</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/goals/' %}active{% endif %}" href="{% url 'goal_list' %}">
+                            <i class="fas fa-bullseye"></i>
+                            <span>Goals</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr class="mx-3" style="border-color: rgba(255,255,255,0.1);">
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/settings/' %}active{% endif %}" href="{% url 'settings' %}">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Admin</span>
+                            <span class="badge bg-danger ms-2 float-end">Admin</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item px-3 mt-2">
+                        <form method="post" action="{% url 'custom_logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <li class="nav-item px-3 mt-2">
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <!-- Main content -->
+            <main id="content" class="col px-3 py-4">
+                <header class="mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h2 class="fw-bold">{% block header %}Home{% endblock %}</h2>
+                </header>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Main content -->
+                <div class="content-wrapper">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    {% endblock sidebar %}
+    {% endblock auth_content %}
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Theme toggle and sidebar scripts -->
+    <script>
+        // Apply theme from user settings or localStorage
+        function applyTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const userPreference = '{{ settings.theme }}';
+            
+            let themeToApply = 'dark'; // Default to dark
+            
+            if (userPreference && userPreference !== 'system') {
+                // If user has a preference set in settings, use that
+                themeToApply = userPreference;
+            } else if (savedTheme) {
+                // Otherwise use localStorage preference
+                themeToApply = savedTheme;
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // Or fall back to system preference
+                themeToApply = 'dark';
+            }
+            
+            // Apply the theme
+            document.documentElement.setAttribute('data-bs-theme', themeToApply);
+            
+            // Update toggle button icon
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                if (themeToApply === 'dark') {
+                    themeIcon.className = 'fas fa-moon';
+                    themeIcon.style.color = '#38b6ff';
+                } else {
+                    themeIcon.className = 'fas fa-sun';
+                    themeIcon.style.color = '#ffc107';
+                }
+            }
+
+            // Update theme toggle button style based on theme
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (themeToggle) {
+                if (themeToApply === 'dark') {
+                    themeToggle.style.backgroundColor = 'rgba(33, 37, 41, 0.9)';
+                    themeToggle.style.borderColor = '#38b6ff';
+                } else {
+                    themeToggle.style.backgroundColor = 'rgba(248, 249, 250, 0.9)';
+                    themeToggle.style.borderColor = '#ffc107';
+                }
+            }
+        }
+        
+        // Toggle theme when button is clicked
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            // Update theme
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+            
+            // Save to localStorage
+            localStorage.setItem('theme', newTheme);
+            
+            // Update icon and styling
+            const themeIcon = document.getElementById('theme-icon');
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (themeIcon) {
+                if (newTheme === 'dark') {
+                    themeIcon.className = 'fas fa-moon';
+                    themeIcon.style.color = '#38b6ff';
+                    if (themeToggle) {
+                        themeToggle.style.backgroundColor = 'rgba(33, 37, 41, 0.9)';
+                        themeToggle.style.borderColor = '#38b6ff';
+                    }
+                } else {
+                    themeIcon.className = 'fas fa-sun';
+                    themeIcon.style.color = '#ffc107';
+                    if (themeToggle) {
+                        themeToggle.style.backgroundColor = 'rgba(248, 249, 250, 0.9)';
+                        themeToggle.style.borderColor = '#ffc107';
+                    }
+                }
+            }
+            
+            // The plexus colors will automatically update on the next animation frame
+            // because the draw function checks the current theme
+        }
+        
+        // Document ready function
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply theme
+            applyTheme();
+            
+            // Handle sidebar toggle
+            const sidebarToggleBtn = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const body = document.body;
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            // Check if sidebar state is saved
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            
+            // Apply initial state
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                content.classList.add('expanded');
+                body.classList.add('sidebar-collapsed');
+                
+                // Force a repaint to ensure styles are applied correctly
+                setTimeout(function() {
+                    sidebar.style.display = 'none';
+                    sidebar.offsetHeight; // Trigger a reflow
+                    sidebar.style.display = '';
+                }, 10);
+                
+                // Update toggle icon
+                if (sidebarToggleBtn) {
+                    const toggleIcon = sidebarToggleBtn.querySelector('i');
+                    if (toggleIcon) {
+                        toggleIcon.classList.remove('fa-chevron-left');
+                        toggleIcon.classList.add('fa-chevron-right');
+                    }
+                }
+            }
+            
+            // Function to toggle sidebar
+            window.toggleSidebar = function() {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('expanded');
+                body.classList.toggle('sidebar-collapsed');
+                
+                // Save state to localStorage
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                
+                // Force a repaint to ensure styles are applied correctly
+                sidebar.style.display = 'none';
+                sidebar.offsetHeight; // Trigger a reflow
+                sidebar.style.display = '';
+                
+                // Update toggle button icon based on sidebar state
+                if (sidebarToggleBtn) {
+                    const toggleIcon = sidebarToggleBtn.querySelector('i');
+                    if (toggleIcon) {
+                        if (sidebar.classList.contains('collapsed')) {
+                            toggleIcon.classList.remove('fa-chevron-left');
+                            toggleIcon.classList.add('fa-chevron-right');
+                        } else {
+                            toggleIcon.classList.remove('fa-chevron-right');
+                            toggleIcon.classList.add('fa-chevron-left');
+                        }
+                    }
+                }
+                
+                // Handle overlay for mobile
+                if (overlay) {
+                    if (window.innerWidth < 768 && !sidebar.classList.contains('collapsed')) {
+                        overlay.classList.remove('d-none');
+                    } else {
+                        overlay.classList.add('d-none');
+                    }
+                }
+            };
+            
+            // Handle main toggle button click
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
+            
+            // Handle overlay click to close sidebar on mobile
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    if (window.innerWidth < 768 && !sidebar.classList.contains('collapsed')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+            
+            // Close sidebar on mobile when clicking links
+            const sidebarLinks = sidebar.querySelectorAll('a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Check if sidebar is collapsed
+                    if (sidebar.classList.contains('collapsed')) {
+                        // Don't toggle sidebar when clicking links in collapsed mode
+                        return;
+                    }
+                    
+                    // Only toggle on mobile
+                    if (window.innerWidth < 768 && !sidebar.classList.contains('collapsed')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+            
+            // Handle clicks outside sidebar on mobile
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth < 768 && 
+                    !sidebar.contains(e.target) && 
+                    !sidebar.classList.contains('collapsed')) {
+                    toggleSidebar();
+                }
+            });
+        });
+    </script>
+    
+    <!-- Plexus Background Animation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('plexus');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let points = [];
+            const numPoints = 100;
+            const maxDistance = 100;
+            
+            // Set canvas to window size
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Reset points if needed
+                if (points.length === 0) {
+                    initPoints();
+                }
+            }
+            
+            // Initialize points
+            function initPoints() {
+                points = [];
+                for (let i = 0; i < numPoints; i++) {
+                    points.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 1,
+                        vy: (Math.random() - 0.5) * 1
+                    });
+                }
+            }
+            
+            window.addEventListener('resize', resize);
+            resize();
+            
+            let mouse = { x: null, y: null };
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+            
+            // Main drawing function
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                
+                // Adapt colors to the current theme
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+                const pointColor = currentTheme === 'dark' ? '#00ffe0' : '#0068ff';
+                const lineBaseColor = currentTheme === 'dark' ? '0,255,224' : '0,104,255';
+                const mouseLineColor = currentTheme === 'dark' ? '255,255,255' : '255,255,255';
+                
+                // Draw points and connections
+                points.forEach((p, i) => {
+                    // Move points
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    
+                    // Bounce off edges
+                    if (p.x < 0 || p.x > width) p.vx *= -1;
+                    if (p.y < 0 || p.y > height) p.vy *= -1;
+                    
+                    // Draw point
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = pointColor;
+                    ctx.fill();
+                    
+                    // Connect to other points
+                    for (let j = i + 1; j < points.length; j++) {
+                        let dx = p.x - points[j].x;
+                        let dy = p.y - points[j].y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < maxDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(points[j].x, points[j].y);
+                            ctx.strokeStyle = `rgba(${lineBaseColor},${1 - dist / maxDistance})`;
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    // Connect to mouse
+                    if (mouse.x !== null && mouse.y !== null) {
+                        let dx = p.x - mouse.x;
+                        let dy = p.y - mouse.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < maxDistance * 1.5) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.strokeStyle = `rgba(${mouseLineColor},${1 - dist / (maxDistance * 1.5)})`;
+                            ctx.stroke();
+                        }
+                    }
+                });
+                
+                requestAnimationFrame(draw);
+            }
+            
+            // Start animation
+            draw();
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,54 @@
+{% extends 'core/admin/admin_base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Admin - Edit Financial Goal{% endblock %}
+{% block header %}Edit Financial Goal #{{ goal.id }}{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Edit Financial Goal for User: {{ user.username }}</h6>
+        <a href="{% url 'admin_goals' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back to Goals
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> You are editing a financial goal for <strong>{{ user.username }}</strong>.
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Goal Details</h6>
+                            <p class="mb-1"><strong>Title:</strong> {{ goal.name }}</p>
+                            <p class="mb-1"><strong>Target Amount:</strong> ${{ goal.target_amount }}</p>
+                            <p class="mb-1"><strong>Deadline:</strong> {{ goal.deadline|date:"M d, Y" }}</p>
+                            <p class="mb-0"><strong>Current Progress:</strong> {{ goal.progress }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {{ form|crispy }}
+            
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Save Changes
+                </button>
+                <a href="{% url 'admin_goals' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+                <a href="{% url 'admin_goal_delete' goal.id %}" class="btn btn-danger ms-auto">
+                    <i class="fas fa-trash me-1"></i> Delete Goal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

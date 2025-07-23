@@ -1,0 +1,59 @@
+{% extends 'core/admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Admin - Delete Category{% endblock %}
+{% block header %}Delete Category{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Confirm Category Deletion</h6>
+        <a href="{% url 'admin_categories' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back to Categories
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i> Warning!</h5>
+            <p>You are about to permanently delete a category belonging to user <strong>{{ category.user.username }}</strong>. This action cannot be undone.</p>
+            <p class="mb-0"><strong>Note:</strong> Deleting this category may affect transactions and budgets that use it.</p>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Category Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> {{ category.id }}</p>
+                        <p><strong>User:</strong> {{ category.user.username }}</p>
+                        <p><strong>Name:</strong> {{ category.name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Type:</strong> 
+                            <span class="badge {% if category.type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ category.type|title }}
+                            </span>
+                        </p>
+                        <p><strong>Description:</strong> {{ category.description|default:"None" }}</p>
+                        <p><strong>Created at:</strong> {{ category.created_at }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" class="text-center">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i> Yes, Delete Category
+                </button>
+                <a href="{% url 'admin_categories' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

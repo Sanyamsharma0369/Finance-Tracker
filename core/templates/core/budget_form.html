@@ -1,0 +1,145 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Edit Budget{% else %}Create New Budget{% endif %} - Finance Tracker{% endblock %}
+
+{% block header %}{% if form.instance.pk %}Edit Budget{% else %}Create New Budget{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10 col-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{% if form.instance.pk %}Edit Budget{% else %}Create New Budget{% endif %}</h5>
+            </div>
+            <div class="card-body">
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <h5 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i>Please correct the errors below</h5>
+                    <ul class="mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">
+                                <i class="fas fa-tag text-primary me-2"></i>Category
+                            </label>
+                            {% if categories %}
+                                <select name="category" id="{{ form.category.id_for_label }}" class="form-select" required>
+                                    <option value="">Select a category</option>
+                                    <optgroup label="Income Categories">
+                                        {% for category in categories %}
+                                            {% if category.type == 'income' %}
+                                                <option value="{{ category.id }}" 
+                                                    {% if form.instance.category_id == category.id %}selected{% endif %}>
+                                                    {{ category.name }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="Expense Categories">
+                                        {% for category in categories %}
+                                            {% if category.type == 'expense' %}
+                                                <option value="{{ category.id }}" 
+                                                    {% if form.instance.category_id == category.id %}selected{% endif %}>
+                                                    {{ category.name }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a category.
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    You need to create categories first.
+                                </div>
+                            {% endif %}
+                            <div class="mt-2">
+                                <a href="{% url 'category_create' %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-plus-circle"></i> Create New Category
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.period.id_for_label }}" class="form-label">
+                                <i class="fas fa-calendar text-primary me-2"></i>Budget Period
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                {{ form.period }}
+                            </div>
+                            <small class="form-text text-muted">Select how often this budget repeats</small>
+                            {% if form.period.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.period.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.amount.id_for_label }}" class="form-label">
+                            <i class="fas fa-dollar-sign text-primary me-2"></i>Budget Amount
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.amount }}
+                        </div>
+                        <small class="form-text text-muted">Enter the maximum amount for this budget</small>
+                        {% if form.amount.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.amount.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>{% if form.instance.pk %}Update Budget{% else %}Create Budget{% endif %}
+                        </button>
+                        <a href="{% url 'budget_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %} 

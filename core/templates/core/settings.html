@@ -1,0 +1,264 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Settings - Finance Tracker{% endblock %}
+
+{% block header %}Settings{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% if is_anonymous %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        You are viewing settings in demo mode. <a href="{% url 'login' %}" class="alert-link">Log in</a> or <a href="{% url 'register' %}" class="alert-link">register</a> to save your preferences.
+    </div>
+    {% endif %}
+    
+    <form method="post" class="settings-form" id="settingsForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row g-4">
+            <!-- Profile Settings Card -->
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Profile Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if not is_anonymous %}
+                        <div class="text-center mb-4">
+                            {% if has_profile_picture %}
+                            <div class="position-relative mx-auto" style="width: 140px; height: 140px;">
+                                <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle border shadow mb-3" width="140" height="140" style="object-fit: cover;">
+                                <label for="id_profile_picture" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow cursor-pointer" style="cursor: pointer;">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                            </div>
+                            {% else %}
+                            <div class="position-relative mx-auto" style="width: 140px; height: 140px;">
+                                <div class="profile-placeholder rounded-circle d-flex align-items-center justify-content-center bg-secondary mb-3 mx-auto" style="width: 140px; height: 140px;">
+                                    <i class="fas fa-user fa-4x text-white"></i>
+                                </div>
+                                <label for="id_profile_picture" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow cursor-pointer" style="cursor: pointer;">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                            </div>
+                            {% endif %}
+                            <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+                            <p class="text-muted">{{ user.email }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.last_name|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.email|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.phone_number|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3" style="display: none;">
+                            {{ form.profile_picture|as_crispy_field }}
+                        </div>
+                        
+                        <div class="alert alert-light border small mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Your profile information helps us personalize your experience.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- App Settings Card -->
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>App Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Theme & Currency Settings -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Appearance</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.theme|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.currency|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Settings -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Notifications</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.notifications_enabled|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.email_notifications|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    {{ form.budget_alerts|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.goal_reminders|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Localization Settings -->
+                        <div class="mb-3">
+                            <h6 class="mb-3">Localization</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ form.language|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.timezone|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.date_format|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-end mt-4">
+            <button type="submit" class="btn btn-primary" id="saveSettingsBtn">
+                <i class="fas fa-save me-2"></i>Save Settings
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle theme changes
+    const themeSelect = document.querySelector('select[name="theme"]');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', function() {
+            const selectedTheme = this.value;
+            document.documentElement.setAttribute('data-bs-theme', selectedTheme === 'system' ? 'light' : selectedTheme);
+            localStorage.setItem('theme', selectedTheme);
+        });
+    }
+
+    // Handle profile picture upload when camera icon is clicked
+    const cameraIcon = document.querySelector('label[for="id_profile_picture"]');
+    const profileInput = document.querySelector('input[name="profile_picture"]');
+    
+    if (cameraIcon && profileInput) {
+        cameraIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            profileInput.click();
+        });
+        
+        profileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                // Get profile image elements
+                const profileImg = document.querySelector('.rounded-circle[alt="Profile Picture"]');
+                const profilePlaceholder = document.querySelector('.profile-placeholder');
+                
+                // Set up FileReader to preview the image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (profileImg) {
+                        // Update existing image
+                        profileImg.src = e.target.result;
+                    } else if (profilePlaceholder) {
+                        // Create new image to replace placeholder
+                        const img = document.createElement('img');
+                        img.classList.add('rounded-circle', 'border', 'shadow', 'mb-3');
+                        img.width = 140;
+                        img.height = 140;
+                        img.alt = 'Profile Picture';
+                        img.style.objectFit = 'cover';
+                        img.src = e.target.result;
+                        
+                        // Replace placeholder with image
+                        profilePlaceholder.parentNode.replaceChild(img, profilePlaceholder);
+                    }
+                }
+                reader.readAsDataURL(this.files[0]);
+                
+                // Add file name as feedback
+                const fileNameFeedback = document.createElement('div');
+                fileNameFeedback.classList.add('small', 'text-success', 'mt-2', 'text-center');
+                fileNameFeedback.textContent = `Selected: ${this.files[0].name}`;
+                
+                // Insert after the profile image container
+                const imageContainer = document.querySelector('.position-relative.mx-auto');
+                if (imageContainer) {
+                    const existingFeedback = imageContainer.nextElementSibling;
+                    if (existingFeedback && existingFeedback.classList.contains('small')) {
+                        existingFeedback.remove();
+                    }
+                    imageContainer.insertAdjacentElement('afterend', fileNameFeedback);
+                }
+            }
+        });
+    }
+
+    // Handle currency changes
+    const currencySelect = document.querySelector('select[name="currency"]');
+    if (currencySelect) {
+        currencySelect.addEventListener('change', function() {
+            // Just visual feedback for now
+            const feedback = document.createElement('div');
+            feedback.classList.add('alert', 'alert-info', 'mt-2', 'animate__animated', 'animate__fadeIn');
+            feedback.innerHTML = '<i class="fas fa-info-circle me-2"></i>Currency will be updated after saving settings.';
+            
+            // Remove any existing feedback
+            const existingFeedback = currencySelect.parentNode.querySelector('.alert');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            currencySelect.parentNode.appendChild(feedback);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                feedback.classList.add('animate__fadeOut');
+                setTimeout(() => feedback.remove(), 1000);
+            }, 3000);
+        });
+    }
+
+    // Handle form submission with animations
+    const form = document.getElementById('settingsForm');
+    const saveBtn = document.getElementById('saveSettingsBtn');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Save button animation
+            if (saveBtn) {
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                saveBtn.disabled = true;
+            }
+            
+            // Enable form submission
+            return true;
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

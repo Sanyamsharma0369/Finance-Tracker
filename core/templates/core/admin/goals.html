@@ -1,0 +1,149 @@
+{% extends 'core/admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Financial Goals Management | Finance Tracker{% endblock %}
+{% block header %}Financial Goals Management{% endblock %}
+
+{% block content %}
+<!-- Filter Card -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Goal Filters</h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="filter-form">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="user_id" class="form-label">User</label>
+                    <select name="user_id" id="user_id" class="form-select">
+                        <option value="">All Users</option>
+                        {% for user_obj in users %}
+                        <option value="{{ user_obj.id }}" {% if selected_user_id == user_obj.id|stringformat:"i" %}selected{% endif %}>{{ user_obj.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i> Filter Goals
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Goals List Card -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold">Financial Goals</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered admin-table" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="15%">User</th>
+                        <th width="15%">Title</th>
+                        <th width="15%">Target Amount</th>
+                        <th width="10%">Deadline</th>
+                        <th width="10%">Progress</th>
+                        <th width="15%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for goal in goals %}
+                    <tr>
+                        <td>{{ goal.id }}</td>
+                        <td>{{ goal.user.username }}</td>
+                        <td>{{ goal.title }}</td>
+                        <td>₹{{ goal.target_amount }}</td>
+                        <td>{{ goal.deadline|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar {% if goal.progress >= 100 %}bg-success{% elif goal.progress >= 60 %}bg-info{% elif goal.progress >= 30 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" style="width: {{ goal.progress }}%;" 
+                                     aria-valuenow="{{ goal.progress }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ goal.progress }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-buttons">
+                                <a href="{% url 'admin_goal_edit' goal.id %}" class="btn btn-sm btn-primary" title="Edit Goal">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'admin_goal_delete' goal.id %}" class="btn btn-sm btn-danger" title="Delete Goal" 
+                                   onclick="return confirm('Are you sure you want to delete this goal? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No financial goals found matching the criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Goals Summary</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 text-center">
+                            <h6 class="text-muted mb-1">Total Goals</h6>
+                            <h4>{{ goals|length }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 text-center">
+                            <h6 class="text-muted mb-1">Active Goals</h6>
+                            <h4>{{ goals|length|default:0 }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <p>You can manage all financial goals across users. Use the filters to narrow down results.</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'admin_reports' %}" class="btn btn-primary">
+                        <i class="fas fa-chart-bar me-2"></i> View Detailed Reports
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt me-2"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize DataTable with search and sorting
+        $('#dataTable').DataTable({
+            order: [[0, 'desc']]
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,73 @@
+ q{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-trash me-2"></i>Delete Category</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Warning
+                    </h6>
+                    <p class="mb-0">
+                        Are you sure you want to delete the category <strong>"{{ object.name }}"</strong>?
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                {% if object.transaction_count > 0 or object.budget_count > 0 %}
+                <div class="alert alert-danger mb-4">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-circle me-2"></i>Attention Required
+                    </h6>
+                    <p>This category is being used in:</p>
+                    <ul class="mb-0">
+                        {% if object.transaction_count > 0 %}
+                        <li>{{ object.transaction_count }} transaction{{ object.transaction_count|pluralize }}</li>
+                        {% endif %}
+                        {% if object.budget_count > 0 %}
+                        <li>{{ object.budget_count }} budget{{ object.budget_count|pluralize }}</li>
+                        {% endif %}
+                    </ul>
+                    <p class="mt-2 mb-0">Deleting this category will impact these items.</p>
+                </div>
+                {% endif %}
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Category Details</h6>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Name:</div>
+                            <div class="col-sm-8">{{ object.name }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Type:</div>
+                            <div class="col-sm-8">{{ object.get_type_display }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Description:</div>
+                            <div class="col-sm-8">{{ object.description|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'category_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Delete Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

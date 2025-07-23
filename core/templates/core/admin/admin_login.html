@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Admin Login | Finance Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-login-card {
+        max-width: 450px;
+        margin: 2rem auto;
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-left: 5px solid #dc3545;
+    }
+    
+    .admin-icon {
+        font-size: 3rem;
+        color: #dc3545;
+        margin-bottom: 1rem;
+    }
+    
+    .login-form {
+        padding: 1.5rem;
+    }
+    
+    .form-control:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .btn-admin {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    
+    .btn-admin:hover {
+        background-color: #bb2d3b;
+        border-color: #b02a37;
+    }
+    
+    .alert-admin {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-color: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block auth_content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card admin-login-card">
+                <div class="card-body text-center">
+                    <div class="admin-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h2 class="mb-4">Admin Authentication</h2>
+                    
+                    <div class="alert alert-admin" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Administrator Information:</strong> Only admin users can access the admin panel.
+                        <hr>
+                        <p class="mb-0">Default admin credentials:</p>
+                        <p class="mb-0"><strong>Username:</strong> admin</p>
+                        <p class="mb-0"><strong>Password:</strong> admin123</p>
+                    </div>
+                    
+                    <form method="post" class="login-form">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" name="username" class="form-control" placeholder="Admin Username" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password" class="form-control" placeholder="Admin Password" required>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-admin btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i> Access Admin Panel
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'dashboard' %}" class="text-muted">
+                            <i class="fas fa-arrow-left me-1"></i> Return to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Email Verified - Finance Tracker{% endblock %}
+
+{% block sidebar %}
+<!-- Hide sidebar on this page -->
+{% endblock %}
+
+{% block auth_content %}
+<div class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #0d1b31 0%, #1a2c52 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="text-center mb-5 text-white">
+                    <h1 class="display-4"><i class="fas fa-wallet me-3"></i>Finance Tracker</h1>
+                    <p class="lead">Email Verification</p>
+                </div>
+                <div class="card shadow-lg rounded-4 border-0" style="background-color: #121212; border: 1px solid #333 !important;">
+                    <div class="card-header border-0 pt-4" style="background-color: #121212;">
+                        <h4 class="text-center mb-0 text-white">Verification Successful!</h4>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <div class="verification-success-icon mb-4">
+                            <i class="fas fa-check-circle fa-5x text-success" style="text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);"></i>
+                        </div>
+                        
+                        <h5 class="mb-3 text-white">Your email has been verified</h5>
+                        <p class="mb-4 text-light">Thank you for verifying your email address. You can now log in to your Finance Tracker account.</p>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="{% url 'login' %}" class="btn btn-success btn-lg rounded-pill" style="font-weight: 600; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
+                                <i class="fas fa-sign-in-alt me-2"></i>Log In Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animated entrance for elements
+        const elements = [
+            document.querySelector('.verification-success-icon'),
+            document.querySelector('h5'),
+            document.querySelector('p'),
+            document.querySelector('.btn')
+        ];
+        
+        elements.forEach((element, index) => {
+            if (element) {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, 300 + (index * 200));
+            }
+        });
+        
+        // Animate success icon
+        const icon = document.querySelector('.verification-success-icon i');
+        if (icon) {
+            icon.style.transform = 'scale(0.5)';
+            icon.style.transition = 'transform 0.5s ease-out';
+            setTimeout(() => {
+                icon.style.transform = 'scale(1)';
+            }, 300);
+        }
+    });
+</script>
+{% endblock %} 

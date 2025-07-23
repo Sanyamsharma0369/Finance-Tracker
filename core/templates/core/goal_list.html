@@ -1,0 +1,371 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Financial Goals - Finance Tracker{% endblock %}
+
+{% block header %}Financial Goals{% endblock %}
+
+{% block header_buttons %}
+<div class="d-flex gap-2">
+    <a href="{% url 'export_pdf' %}" class="btn btn-success">
+        <i class="fas fa-file-pdf me-2"></i>Export as PDF
+    </a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'goal_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus-circle me-2"></i>New Goal
+    </a>
+    {% else %}
+    <button class="btn btn-secondary" disabled>
+        <i class="fas fa-plus-circle me-2"></i>New Goal (Demo Mode)
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Goal Options</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sort me-2"></i>Sort By
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="deadline">Deadline (Earliest First)</a></li>
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="deadline-desc">Deadline (Latest First)</a></li>
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="progress">Progress (Lowest First)</a></li>
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="progress-desc">Progress (Highest First)</a></li>
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="amount">Target Amount (Lowest First)</a></li>
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="amount-desc">Target Amount (Highest First)</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter me-2"></i>Filter
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="all">All Goals</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="upcoming">Upcoming Deadlines (30 days)</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="complete">Completed Goals</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="incomplete">Incomplete Goals</a></li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn btn-outline-secondary" id="toggleView">
+                        <i class="fas fa-th-large me-2"></i>Toggle View
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Goal Progress Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h3 id="totalGoals">{{ goals|length }}</h3>
+                        <p class="text-muted mb-0">Total Goals</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 id="completedGoals">0</h3>
+                        <p class="text-muted mb-0">Completed</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 id="upcomingDeadlines">0</h3>
+                        <p class="text-muted mb-0">Due Soon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="goals-container" class="row">
+    {% for goal in goals %}
+    <div class="col-md-4 mb-4 goal-card" 
+         data-deadline="{{ goal.deadline|date:'Y-m-d' }}" 
+         data-progress="{{ goal.current_amount|floatformat:0 }}" 
+         data-target="{{ goal.target_amount|floatformat:0 }}">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ goal.name }}</h5>
+                {% if user.is_authenticated %}
+                <div class="btn-group">
+                    <a href="{% url 'goal_edit' goal.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'goal_delete' goal.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if goal.category %}
+                <span class="badge {% if goal.category.type == 'income' %}bg-success{% else %}bg-primary{% endif %} mb-3">
+                    {{ goal.category.name }}
+                </span>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Target Amount:</span>
+                    <span>{{ currency_symbol }}{{ goal.target_amount|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Current Amount:</span>
+                    <span>{{ currency_symbol }}{{ goal.current_amount|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Remaining:</span>
+                    <span>{{ currency_symbol }}{{ goal.remaining|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Deadline:</span>
+                    <span>{{ goal.deadline|date:"M d, Y" }}</span>
+                </div>
+                
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {% if goal.progress_value is not None %}{{ goal.progress_value }}{% else %}{{ goal.progress|floatformat:0 }}{% endif %}%" 
+                         aria-valuenow="{% if goal.progress_value is not None %}{{ goal.progress_value }}{% else %}{{ goal.progress|floatformat:0 }}{% endif %}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">Progress: {% if goal.progress_value is not None %}{{ goal.progress_value }}{% else %}{{ goal.progress|floatformat:0 }}{% endif %}%</small>
+                    <small class="text-muted">{{ goal.days_left }} days left</small>
+                </div>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="card-footer">
+                <form action="{% url 'goal_edit' goal.pk %}" method="post" class="d-flex">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="number" name="current_amount" min="0" step="0.01" class="form-control" placeholder="Update progress" required>
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-check"></i> Update
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-2x mb-3"></i>
+            <h4>No Financial Goals Found</h4>
+            <p>You haven't created any financial goals yet. Goals help you save for important purchases or events.</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'goal_create' %}" class="btn btn-primary mt-2">
+                <i class="fas fa-plus-circle me-2"></i>Create Your First Goal
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Update Progress Modal -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1" aria-labelledby="updateProgressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateProgressModalLabel">Update Goal Progress</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateProgressForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="goal_id" name="goal_id">
+                    <div class="mb-3">
+                        <label for="current_amount" class="form-label">Current Amount Saved</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" step="0.01" min="0" class="form-control" id="current_amount" name="current_amount" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProgressBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize goal statistics
+    updateGoalStats();
+    
+    // Sort options
+    document.querySelectorAll('.sort-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sortBy = this.getAttribute('data-sort');
+            sortGoals(sortBy);
+        });
+    });
+    
+    // Filter options
+    document.querySelectorAll('.filter-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filterBy = this.getAttribute('data-filter');
+            filterGoals(filterBy);
+        });
+    });
+    
+    // Toggle view (grid/list)
+    document.getElementById('toggleView').addEventListener('click', function() {
+        const container = document.getElementById('goals-container');
+        container.classList.toggle('list-view');
+        
+        const cards = document.querySelectorAll('.goal-card');
+        cards.forEach(card => {
+            if (container.classList.contains('list-view')) {
+                card.classList.remove('col-md-4');
+                card.classList.add('col-12');
+            } else {
+                card.classList.add('col-md-4');
+                card.classList.remove('col-12');
+            }
+        });
+    });
+    
+    // Update Progress Modal
+    const updateProgressBtns = document.querySelectorAll('.update-progress');
+    updateProgressBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const goalId = this.getAttribute('data-goal-id');
+            document.getElementById('goal_id').value = goalId;
+            
+            // Here you would typically fetch the current amount from the server
+            // For now, we'll just show the modal
+            const modal = new bootstrap.Modal(document.getElementById('updateProgressModal'));
+            modal.show();
+        });
+    });
+    
+    // Save Progress Button
+    document.getElementById('saveProgressBtn').addEventListener('click', function() {
+        // Here you would typically submit the form via AJAX
+        // For now, we'll just close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateProgressModal'));
+        modal.hide();
+        
+        // Show a success message
+        alert('Progress updated successfully!');
+    });
+    
+    // Functions to handle sorting and filtering
+    function sortGoals(sortBy) {
+        const container = document.getElementById('goals-container');
+        const cards = Array.from(container.querySelectorAll('.goal-card'));
+        
+        cards.sort((a, b) => {
+            let valueA, valueB;
+            
+            if (sortBy.startsWith('deadline')) {
+                valueA = new Date(a.getAttribute('data-deadline'));
+                valueB = new Date(b.getAttribute('data-deadline'));
+            } else if (sortBy.startsWith('progress')) {
+                valueA = parseFloat(a.getAttribute('data-progress')) / parseFloat(a.getAttribute('data-target')) * 100;
+                valueB = parseFloat(b.getAttribute('data-progress')) / parseFloat(b.getAttribute('data-target')) * 100;
+            } else if (sortBy.startsWith('amount')) {
+                valueA = parseFloat(a.getAttribute('data-target'));
+                valueB = parseFloat(b.getAttribute('data-target'));
+            }
+            
+            if (sortBy.endsWith('-desc')) {
+                return valueB - valueA;
+            } else {
+                return valueA - valueB;
+            }
+        });
+        
+        // Clear and re-append sorted cards
+        container.innerHTML = '';
+        cards.forEach(card => container.appendChild(card));
+    }
+    
+    function filterGoals(filterBy) {
+        const cards = document.querySelectorAll('.goal-card');
+        const today = new Date();
+        let thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+        
+        cards.forEach(card => {
+            const deadline = new Date(card.getAttribute('data-deadline'));
+            const progress = parseFloat(card.getAttribute('data-progress'));
+            const target = parseFloat(card.getAttribute('data-target'));
+            const isComplete = progress >= target;
+            
+            if (filterBy === 'all') {
+                card.style.display = '';
+            } else if (filterBy === 'upcoming' && deadline <= thirtyDaysFromNow) {
+                card.style.display = '';
+            } else if (filterBy === 'complete' && isComplete) {
+                card.style.display = '';
+            } else if (filterBy === 'incomplete' && !isComplete) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        updateGoalStats();
+    }
+    
+    function updateGoalStats() {
+        const allGoals = document.querySelectorAll('.goal-card');
+        const visibleGoals = document.querySelectorAll('.goal-card:not([style*="display: none"])');
+        const today = new Date();
+        let thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+        
+        let completedCount = 0;
+        let upcomingCount = 0;
+        
+        allGoals.forEach(card => {
+            const deadline = new Date(card.getAttribute('data-deadline'));
+            const progress = parseFloat(card.getAttribute('data-progress'));
+            const target = parseFloat(card.getAttribute('data-target'));
+            
+            if (progress >= target) {
+                completedCount++;
+            }
+            
+            if (deadline <= thirtyDaysFromNow && progress < target) {
+                upcomingCount++;
+            }
+        });
+        
+        document.getElementById('totalGoals').textContent = visibleGoals.length;
+        document.getElementById('completedGoals').textContent = completedCount;
+        document.getElementById('upcomingDeadlines').textContent = upcomingCount;
+    }
+});
+</script>
+{% endblock %} 

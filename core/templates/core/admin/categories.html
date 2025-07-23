@@ -1,0 +1,131 @@
+{% extends 'core/admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Admin - All Categories{% endblock %}
+{% block header %}All User Categories{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Category Management</h6>
+    </div>
+    <div class="card-body">
+        <!-- Filter Form -->
+        <form method="get" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="user_id" class="form-label">User</label>
+                    <select name="user_id" id="user_id" class="form-select">
+                        <option value="">All Users</option>
+                        {% for user_obj in users %}
+                        <option value="{{ user_obj.id }}" {% if selected_user_id == user_obj.id|stringformat:"i" %}selected{% endif %}>
+                            {{ user_obj.username }} ({{ user_obj.email }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Type</label>
+                    <select name="type" id="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="income" {% if selected_type == 'income' %}selected{% endif %}>Income</option>
+                        <option value="expense" {% if selected_type == 'expense' %}selected{% endif %}>Expense</option>
+                    </select>
+                </div>
+                <div class="col-md-5 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'admin_categories' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <!-- Categories Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if categories %}
+                        {% for category in categories %}
+                            <tr>
+                                <td>{{ category.id }}</td>
+                                <td>{{ category.user.username }}</td>
+                                <td>{{ category.name }}</td>
+                                <td>
+                                    <span class="badge {% if category.type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ category.type|title }}
+                                    </span>
+                                </td>
+                                <td>{{ category.description|default:"No description" }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'admin_category_edit' category.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'admin_category_delete' category.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">No categories found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Card -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Category Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Showing:</strong> {{ categories.count }} category(s)
+                    {% if selected_user_id %}
+                        for user #{{ selected_user_id }}
+                    {% endif %}
+                    {% if selected_type %}
+                        of type "{{ selected_type }}"
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <p>You can manage all category data across users. Use the filters to narrow down results.</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt me-2"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

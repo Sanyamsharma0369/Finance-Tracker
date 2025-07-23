@@ -1,0 +1,312 @@
+/* Admin Panel Styles */
+
+/* Admin Sidebar */
+#sidebar {
+    background-color: #212529 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar .app-brand {
+    background-color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+#sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.75) !important;
+    border-left: 3px solid transparent;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+#sidebar .nav-link:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 3px solid #dc3545;
+}
+
+#sidebar .nav-link.active {
+    color: #fff !important;
+    background-color: rgba(220, 53, 69, 0.2);
+    border-left: 3px solid #dc3545;
+}
+
+#sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+    color: #dc3545 !important;
+    font-size: 1.2rem !important;
+    filter: drop-shadow(0 0 2px rgba(220, 53, 69, 0.5)) !important;
+}
+
+/* Collapsed admin sidebar */
+#sidebar.collapsed .nav-link i {
+    margin-right: 0 !important;
+    font-size: 1.5rem !important;
+    color: #dc3545 !important;
+    filter: drop-shadow(0 0 3px rgba(220, 53, 69, 0.6)) !important;
+}
+
+/* Admin Badge */
+.admin-badge {
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 rgba(220, 53, 69, 0.4);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+/* Admin Cards */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card .card-header {
+    font-weight: bold;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Stat Cards */
+.stat-card {
+    border-left: 4px solid;
+    border-radius: 0.5rem;
+}
+
+.stat-card.border-left-primary {
+    border-left-color: #4e73df;
+}
+
+.stat-card.border-left-success {
+    border-left-color: #1cc88a;
+}
+
+.stat-card.border-left-info {
+    border-left-color: #36b9cc;
+}
+
+.stat-card.border-left-warning {
+    border-left-color: #f6c23e;
+}
+
+.stat-card.border-left-danger {
+    border-left-color: #e74a3b;
+}
+
+.stat-card .card-icon {
+    font-size: 2rem;
+    opacity: 0.7;
+}
+
+/* Tables */
+.admin-table thead th {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+.admin-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+/* Buttons */
+.btn-admin-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    color: #fff;
+}
+
+.btn-admin-success {
+    background-color: #1cc88a;
+    border-color: #1cc88a;
+    color: #fff;
+}
+
+.btn-admin-info {
+    background-color: #36b9cc;
+    border-color: #36b9cc;
+    color: #fff;
+}
+
+.btn-admin-warning {
+    background-color: #f6c23e;
+    border-color: #f6c23e;
+    color: #fff;
+}
+
+.btn-admin-danger {
+    background-color: #e74a3b;
+    border-color: #e74a3b;
+    color: #fff;
+}
+
+/* Admin Form Controls */
+.admin-form .form-control:focus,
+.admin-form .form-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+}
+
+/* Action Buttons */
+.action-buttons .btn {
+    margin-right: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .admin-badge {
+        display: none;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Admin Panel Specific Styles */
+
+/* Card border styles */
+.card.border-left-primary {
+    border-left: 0.25rem solid #4e73df!important;
+}
+
+.card.border-left-success {
+    border-left: 0.25rem solid #1cc88a!important;
+}
+
+.card.border-left-info {
+    border-left: 0.25rem solid #36b9cc!important;
+}
+
+.card.border-left-warning {
+    border-left: 0.25rem solid #f6c23e!important;
+}
+
+.card.border-left-danger {
+    border-left: 0.25rem solid #e74a3b!important;
+}
+
+/* Admin theme overrides */
+[data-bs-theme="dark"] .admin-badge {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Sidebar enhancement */
+#sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #dc3545;
+}
+
+#sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s;
+}
+
+/* Table styles */
+.table-responsive {
+    overflow-x: auto;
+    min-height: 300px;
+}
+
+/* Admin status badges */
+.status-badge {
+    padding: 0.35em 0.65em;
+    border-radius: 0.25rem;
+    font-size: 0.75em;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.status-active {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.status-inactive {
+    background-color: #e74a3b;
+    color: white;
+}
+
+.status-pending {
+    background-color: #f6c23e;
+    color: white;
+}
+
+/* Admin action buttons */
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Enhance form controls */
+.form-control:focus, .form-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* File input enhancement */
+.form-control[type="file"] {
+    padding: 0.375rem 0.75rem;
+}
+
+/* Filter form styles */
+.filter-form {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+[data-bs-theme="dark"] .filter-form {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Loading spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+} 
+} 

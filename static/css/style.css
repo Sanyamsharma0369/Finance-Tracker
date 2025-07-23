@@ -1,0 +1,1305 @@
+:root {
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 60px;
+    --primary-color: #4361ee;  /* Modern blue */
+    --secondary-color: #6c757d;
+    --accent-color: #3a0ca3;   /* Rich purple accent */
+    --text-color: #333333;
+    --light-text-color: #ffffff;
+    --background-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --transition-speed: 0.3s;
+    --navbar-height: 48px; /* Smaller header height */
+    --success-color: #4cc9f0; /* Cyan-blue for success */
+    --warning-color: #f72585; /* Hot pink for warning */
+    --danger-color: #7209b7;  /* Purple for danger */
+    --info-color: #4895ef;    /* Light blue for info */
+}
+
+/* Dark theme variables */
+[data-bs-theme="dark"] {
+    --text-color: #f8f9fa; /* Brighter text for better visibility */
+    --light-text-color: #ffffff;
+    --background-color: #212529;
+    --card-bg: #2c3034;
+    --border-color: #495057;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --primary-color: #4cc9f0; /* Light blue in dark mode */
+    --accent-color: #7209b7;  /* Purple accent in dark mode */
+    --success-color: #52b788; /* Softer green in dark mode */
+    --warning-color: #ffb703; /* Yellow-orange for dark mode */
+    --danger-color: #e63946;  /* Soft red for dark mode */
+    --info-color: #4895ef;    /* Light blue for info */
+}
+
+/* Remove the global color override that's causing issues */
+/* body, p, h1, h2, h3, h4, h5, h6, span, div, li, a:not(.btn), label, .nav-link {
+    color: inherit !important;
+} */
+
+/* Set base text color for body */
+body {
+    color: var(--text-color);
+    background-color: rgba(240, 245, 255, 0.4); /* More transparent background */
+    position: relative;
+    overflow-x: hidden;
+    font-family: 'Poppins', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    font-size: 16px; /* Base font size */
+}
+
+/* Plexus canvas background */
+#plexus {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -20; /* Behind all other backgrounds */
+    display: block;
+}
+
+/* Animated plexiglass background - make it more transparent to see plexus */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%);
+    background-position: 10px 0, 10px 0, 0 0, 0 0;
+    background-size: 20px 20px;
+    animation: animatedBackground 30s linear infinite;
+    backdrop-filter: blur(5px); /* Less blur to see plexus */
+    -webkit-backdrop-filter: blur(5px);
+    z-index: -10;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(138, 180, 255, 0.1) 0%, transparent 40%);
+    animation: moveGradient 20s ease infinite alternate;
+    z-index: -5;
+}
+
+/* Dark theme plexis background */
+[data-bs-theme="dark"] body::before {
+    background: 
+        linear-gradient(135deg, rgba(40, 45, 60, 0.1) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(40, 45, 60, 0.1) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(40, 45, 60, 0.1) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(40, 45, 60, 0.1) 25%, transparent 25%);
+    background-position: 10px 0, 10px 0, 0 0, 0 0;
+    background-size: 20px 20px;
+}
+
+[data-bs-theme="dark"] body::after {
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(80, 100, 175, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(30, 40, 80, 0.1) 0%, transparent 40%);
+}
+
+/* Animation for the plexiglass pattern */
+@keyframes animatedBackground {
+    0% { background-position: 10px 0, 10px 0, 0 0, 0 0; }
+    100% { background-position: 110px 100px, 110px 100px, 100px 100px, 100px 100px; }
+}
+
+/* Animation for the radial gradients */
+@keyframes moveGradient {
+    0% { 
+        background-position: 0% 0%, 100% 100%; 
+        opacity: 0.7;
+    }
+    50% { 
+        opacity: 0.9;
+    }
+    100% { 
+        background-position: 100% 0%, 0% 100%; 
+        opacity: 0.7;
+    }
+}
+
+/* Additional plexiglass shine effect */
+.shine-effect {
+    position: fixed;
+    top: -100%;
+    left: -100%;
+    right: -100%;
+    bottom: -100%;
+    background: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    pointer-events: none;
+    transform: rotate(25deg);
+    animation: shineEffect 10s linear infinite;
+    z-index: -1;
+}
+
+@keyframes shineEffect {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(25deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(25deg);
+    }
+}
+
+/* Better font sizing for readability */
+h1, h2, h3, h4, h5, h6, p, span, div, li, a, label, .nav-link {
+    color: var(--text-color);
+}
+
+/* Improved font sizes for dark theme */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select,
+[data-bs-theme="dark"] .btn,
+[data-bs-theme="dark"] .dropdown-item,
+[data-bs-theme="dark"] .nav-link,
+[data-bs-theme="dark"] .table {
+    font-weight: 500; /* Slightly bolder text in dark mode */
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 60px; /* Space for navbar */
+    background-color: var(--sidebar-bg);
+    z-index: 100;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Collapsed sidebar */
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+/* Sidebar brand */
+.sidebar-brand {
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    color: var(--sidebar-text) !important;
+}
+
+/* Brand adjustments when collapsed */
+.sidebar.collapsed .sidebar-brand {
+    padding: 10px 5px;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.sidebar.collapsed .sidebar-brand h4 {
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-brand h4 span {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-brand i {
+    font-size: 2rem;
+    margin: 0;
+    padding: 5px 0;
+}
+
+/* Nav item styling */
+.sidebar .nav-item {
+    width: 100%;
+}
+
+.sidebar .nav-link {
+    padding: 0.75rem 1rem;
+    color: var(--sidebar-text) !important;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-left: 4px solid transparent;
+    transition: all var(--transition-speed);
+}
+
+.sidebar .nav-link i {
+    margin-right: 1rem;
+    min-width: 18px;
+    text-align: center;
+    font-size: 1.2rem; /* Slightly larger icons */
+    transition: all var(--transition-speed);
+    color: #38b6ff !important; /* Light blue color for better visibility */
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.3)); /* Subtle glow effect */
+}
+
+/* Nav items when collapsed */
+.sidebar.collapsed .nav-link {
+    padding: 15px 0;
+    justify-content: center;
+    text-align: center;
+}
+
+.sidebar.collapsed .nav-link span {
+    display: none !important; /* Force hide text in collapsed mode */
+}
+
+.sidebar.collapsed .nav-link i {
+    margin-right: 0;
+    margin-left: 0;
+    font-size: 1.5rem !important; /* Larger icons when collapsed */
+    color: #38b6ff !important; /* Bright blue color */
+    filter: drop-shadow(0 0 3px rgba(56, 182, 255, 0.4)) !important; /* Enhanced glow */
+}
+
+/* Hide extra elements in collapsed state */
+.sidebar.collapsed hr, 
+.sidebar.collapsed .px-3 {
+    display: none;
+}
+
+/* Content area adjustment */
+.content {
+    position: relative;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    padding: 70px 25px 25px; /* Space for navbar */
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content.expanded {
+    margin-left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* Mobile adjustments */
+@media (max-width: 767.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        z-index: 1050; /* Higher than navbar */
+    }
+    
+    .sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+    
+    body:not(.sidebar-collapsed) .sidebar {
+        transform: translateX(0);
+        width: var(--sidebar-width) !important;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Stronger shadow on mobile */
+    }
+    
+    body:not(.sidebar-collapsed) .sidebar .nav-link span {
+        display: inline-block;
+    }
+    
+    body:not(.sidebar-collapsed) .sidebar .px-3 {
+        display: block;
+    }
+    
+    .content, .content.expanded {
+        margin-left: 0;
+        width: 100%;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    /* Sidebar toggle remains in the navbar on mobile */
+    #sidebarToggle {
+        width: 28px !important;
+        height: 28px !important;
+    }
+}
+
+/* Improved responsive container */
+.content-wrapper {
+    width: 100%;
+    padding: 15px;
+    overflow-x: auto;
+}
+
+/* Improved button hover effect */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+/* Card hover effect */
+.card {
+    background-color: var(--card-bg) !important;
+    border: none !important; /* Remove borders */
+    border-radius: 12px !important; /* Rounded corners */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s ease-in-out !important;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Card shine effect */
+.card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.13) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    transition: transform 0.5s;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+}
+
+.card:hover::before {
+    opacity: 1;
+    transform: rotate(30deg) translate(0%, 0%);
+    animation: cardShine 2s forwards;
+}
+
+@keyframes cardShine {
+    0% {
+        transform: rotate(30deg) translate(-30%, -30%);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: rotate(30deg) translate(50%, 50%);
+        opacity: 0;
+    }
+}
+
+/* Dark theme cards more transparent */
+[data-bs-theme="dark"] .card {
+    background-color: rgba(40, 45, 60, 0.4) !important; /* More transparent */
+    border: 1px solid rgba(80, 85, 100, 0.3) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Card headers with better contrast */
+.card-header {
+    background-color: var(--card-bg) !important; /* Same as card background */
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    color: var(--text-color) !important;
+    padding: 1.25rem 1.5rem !important;
+    font-weight: 600;
+}
+
+[data-bs-theme="dark"] .card-header {
+    background-color: #343a40;
+    border-bottom: 1px solid #495057;
+}
+
+/* Dark background headers need light text */
+.card-header.bg-primary, 
+.card-header.bg-secondary, 
+.card-header.bg-success, 
+.card-header.bg-danger, 
+.card-header.bg-warning, 
+.card-header.bg-info, 
+.card-header.bg-dark {
+    color: var(--light-text-color) !important;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.btn {
+    border-radius: 8px !important;
+    padding: 0.5rem 1.25rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.3px;
+    transition: all 0.3s !important;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:hover::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(100, 100);
+        opacity: 0;
+    }
+}
+
+/* Button colors */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.btn-success {
+    background-color: var(--success-color) !important;
+    border-color: var(--success-color) !important;
+    color: white !important;
+}
+
+.btn-danger {
+    background-color: var(--danger-color) !important;
+    border-color: var(--danger-color) !important;
+}
+
+.btn-warning {
+    background-color: var(--warning-color) !important;
+    border-color: var(--warning-color) !important;
+}
+
+.btn-info {
+    background-color: var(--info-color) !important;
+    border-color: var(--info-color) !important;
+}
+
+.progress {
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    transition: width 1s ease;
+    background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent) !important;
+    background-size: 1rem 1rem !important;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
+}
+
+.table {
+    margin-bottom: 0;
+    color: var(--text-color);
+    border-radius: 8px;
+    overflow: hidden;
+    border-collapse: separate !important;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.table th {
+    font-weight: 600;
+    color: var(--text-color) !important;
+    border-top: none !important;
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: 0.75rem 1.25rem !important;
+}
+
+.table td {
+    padding: 0.75rem 1.25rem !important;
+    vertical-align: middle !important;
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05) !important;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Animation */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styling */
+.form-control, .form-select {
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid var(--border-color) !important;
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+/* Badge styling */
+.badge {
+    padding: 0.5em 0.8em !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* High contrast badge colors */
+.badge.bg-success {
+    background-color: #00a652 !important; /* Brighter green */
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.badge.bg-danger {
+    background-color: #e91e63 !important; /* Bright pink-red */
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.badge.bg-primary {
+    background-color: #2196f3 !important; /* Bright blue */
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Light mode badge adjustments */
+[data-bs-theme="light"] .badge.bg-success {
+    background-color: #00a652 !important;
+}
+
+[data-bs-theme="light"] .badge.bg-danger {
+    background-color: #e91e63 !important;
+}
+
+[data-bs-theme="light"] .badge.bg-primary {
+    background-color: #2196f3 !important;
+}
+
+/* Dark mode badge enhancements */
+[data-bs-theme="dark"] .badge.bg-success {
+    background-color: #00c853 !important; /* Brighter green in dark mode */
+    box-shadow: 0 0 8px rgba(0, 200, 83, 0.4) !important;
+}
+
+[data-bs-theme="dark"] .badge.bg-danger {
+    background-color: #ff4081 !important; /* Brighter pink in dark mode */
+    box-shadow: 0 0 8px rgba(255, 64, 129, 0.4) !important;
+}
+
+[data-bs-theme="dark"] .badge.bg-primary {
+    background-color: #448aff !important; /* Brighter blue in dark mode */
+    box-shadow: 0 0 8px rgba(68, 138, 255, 0.4) !important;
+}
+
+/* Table enhancements for visibility */
+.table th {
+    font-weight: 700 !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .table th {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #444 !important;
+}
+
+[data-bs-theme="dark"] .table-light {
+    background-color: #2c3034 !important;
+}
+
+[data-bs-theme="dark"] thead.table-light th {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #444 !important;
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    transition: all var(--transition-speed);
+    margin: 0.5rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Card stats special styling */
+.card-stats {
+    border-radius: 12px !important;
+    overflow: hidden;
+    border: none !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s ease-in-out !important;
+}
+
+.card-stats:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-stats .card-header {
+    border-bottom: none !important;
+    padding: 1.25rem !important;
+}
+
+.card-stats .card-body {
+    padding: 1.5rem !important;
+}
+
+.card-stats h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    transition: color var(--transition-speed);
+}
+
+/* Utilities */
+.shadow-sm {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+}
+
+.shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+/* Text colors */
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Background colors */
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+[data-bs-theme="dark"] .bg-success {
+    background-color: #2dbc4e !important; /* Brighter green in dark mode */
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+[data-bs-theme="dark"] .bg-warning {
+    background-color: #ffce3a !important; /* Brighter yellow in dark mode */
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+[data-bs-theme="dark"] .bg-danger {
+    background-color: #e74c5e !important; /* Brighter red in dark mode */
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+[data-bs-theme="dark"] .bg-primary {
+    background-color: #6ea8fe !important; /* Ensuring primary is visible in dark mode */
+}
+
+/* Link styling */
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 10px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card-bg);
+    border: 2px solid var(--primary-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .theme-toggle {
+    background-color: #1a1d20;
+    border-color: #6ea8fe;
+    color: #6ea8fe;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Loading animation */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Savings rate circle enhancements */
+.savings-rate-circle {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease !important;
+}
+
+.savings-rate-circle:hover {
+    transform: scale(1.05);
+}
+
+/* Make text in the savings rate circle more visible */
+.savings-rate-circle .display-4,
+.savings-rate-circle h4,
+.savings-rate-circle p,
+.savings-rate-circle span {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+[data-bs-theme="dark"] .savings-rate-circle .display-4,
+[data-bs-theme="dark"] .savings-rate-circle h4,
+[data-bs-theme="dark"] .savings-rate-circle p,
+[data-bs-theme="dark"] .savings-rate-circle span {
+    color: #000000 !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+    font-weight: 800 !important;
+}
+
+/* Specifically target circular progress elements */
+.circle-progress text,
+.progress-circle text,
+[class*="circle"] text,
+[class*="circle"] tspan {
+    fill: #000000 !important;
+    font-weight: bold !important;
+    stroke: none !important;
+}
+
+/* Chart type toggle buttons */
+.btn-group .btn {
+    transition: all var(--transition-speed);
+}
+
+.btn-group .btn.active {
+    background-color: var(--accent-color);
+    color: var(--light-text-color);
+}
+
+/* Empty state animations */
+.text-center i {
+    transition: transform var(--transition-speed);
+}
+
+.text-center:hover i {
+    transform: scale(1.1);
+}
+
+/* Demo mode banner */
+.demo-banner {
+    background-color: #ffc107;
+    color: #212529;
+    font-weight: bold;
+    padding: 8px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Navbar adjustments */
+.navbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+    height: var(--navbar-height);
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 48px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color)) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.navbar-brand {
+    font-size: 1.2rem;
+    font-weight: 600;
+    height: var(--navbar-height);
+    display: flex;
+    align-items: center;
+}
+
+/* Remove currency indicators */
+.currency-indicator {
+    display: none;
+}
+
+/* Fix for admin header overlapping */
+.col-md-9.ms-sm-auto.col-lg-10 header {
+    background-color: var(--bg-color);
+    position: relative;
+    z-index: 10;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Fix for admin badge */
+.admin-badge {
+    position: relative;
+    z-index: 20;
+    margin-left: 15px;
+}
+
+/* Ensure proper header layout */
+header .d-flex {
+    align-items: center !important;
+    flex-wrap: wrap;
+}
+
+/* Make header text responsive */
+header h2 {
+    font-size: 1.75rem;
+    margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .admin-badge {
+        font-size: 0.8rem;
+    }
+}
+
+/* Nav tabs styling for dark mode */
+[data-bs-theme="dark"] .nav-tabs {
+    border-bottom-color: #495057;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+    color: #f8f9fa; 
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link.active {
+    color: #f8f9fa;
+    background-color: #343a40;
+    border-color: #495057 #495057 #343a40;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link:hover:not(.active) {
+    border-color: #495057 #495057 #495057;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Sidebar text color overrides for better visibility */
+[data-bs-theme="light"] .sidebar {
+    background-color: #212529 !important; /* Keep dark background in light mode */
+}
+
+[data-bs-theme="light"] .sidebar .nav-link,
+[data-bs-theme="light"] .sidebar .nav-link i,
+[data-bs-theme="light"] .sidebar .nav-link span {
+    color: #ffffff !important; /* Pure white text in light mode */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="light"] .sidebar .nav-item span,
+[data-bs-theme="light"] .sidebar .text-muted,
+[data-bs-theme="light"] .sidebar-brand span {
+    color: #ffffff !important;
+}
+
+/* Extra emphasis on navigation text */
+.sidebar .nav-link span {
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+}
+
+/* Brighter icons for better visibility */
+.sidebar .nav-link i {
+    color: #ffffff !important;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+    font-size: 1.2rem !important;
+}
+
+/* Administrator badge enhancement */
+.sidebar .badge.bg-danger {
+    background-color: #ff0055 !important; /* Brighter red for badge */
+    font-weight: 700 !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 0.5px !important;
+    padding: 6px 10px !important;
+}
+
+/* User section at bottom of sidebar */
+.sidebar .px-3 .text-center {
+    color: #ffffff !important;
+}
+
+.sidebar .px-3 .text-center .fw-bold {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 1.1rem;
+}
+
+.sidebar .px-3 .text-center .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Logout button in sidebar */
+.sidebar .btn-outline-secondary {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+}
+
+.sidebar .btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Additional savings percentage specific styling for dashboard */
+.savings-percentage {
+    font-size: 2.2rem !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.savings-label {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Inner circle background styling */
+.savings-rate-circle .position-absolute {
+    background-color: #ffffff !important; /* White in light mode */
+}
+
+[data-bs-theme="dark"] .savings-rate-circle .position-absolute {
+    background-color: #ffffff !important; /* Keep white in dark mode for contrast */
+}
+
+/* Responsive tables for mobile */
+@media (max-width: 767.98px) {
+    .table-responsive-sm {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Improved form controls */
+.form-control, .form-select {
+    border-radius: 4px;
+    padding: 10px 15px;
+    transition: all 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+}
+
+/* Fix for sidebar on large screens */
+@media (min-width: 992px) {
+    main {
+        margin-left: 16.6667%;
+    }
+}
+
+/* Sidebar toggle button */
+#sidebarToggle {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: none;
+    color: white;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 1100;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#sidebarToggle:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+#sidebarToggle i {
+    font-size: 0.85rem;
+    transition: transform 0.3s;
+}
+
+body.sidebar-collapsed #sidebarToggle i {
+    transform: rotate(180deg);
+}
+
+/* Mobile adjustments for sidebar toggle */
+@media (max-width: 767.98px) {
+    #sidebarToggle {
+        width: 28px !important;
+        height: 28px !important;
+    }
+}
+
+/* Specific fixes for sidebar collapsed mode */
+#sidebar.collapsed {
+    width: 60px !important;
+}
+
+#sidebar.collapsed .sidebar-brand {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 10px 0 !important;
+}
+
+#sidebar.collapsed .sidebar-brand h4 {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+#sidebar.collapsed .sidebar-brand h4 span {
+    display: none !important;
+}
+
+#sidebar.collapsed .sidebar-brand i {
+    font-size: 1.8rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#sidebar.collapsed .nav-link {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 12px 0 !important;
+    text-align: center !important;
+}
+
+#sidebar.collapsed .nav-link span {
+    display: none !important;
+}
+
+#sidebar.collapsed .nav-link i {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.2rem !important;
+}
+
+#sidebar.collapsed hr, 
+#sidebar.collapsed .px-3 {
+    display: none !important;
+}
+
+/* Content adjustment when sidebar is collapsed */
+#content.expanded {
+    margin-left: 60px !important;
+    width: calc(100% - 60px) !important;
+}
+
+/* Loading animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton-loader {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+    border-radius: 8px;
+} 

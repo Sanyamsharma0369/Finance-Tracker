@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Logged Out - Finance Tracker{% endblock %}
+
+{% block sidebar %}
+<!-- Hide sidebar on logout page -->
+{% endblock %}
+
+{% block auth_content %}
+<div class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="text-center mb-5">
+                    <h1 class="display-4 text-white"><i class="fas fa-wallet me-3"></i>Finance Tracker</h1>
+                    <p class="lead text-white">You have been logged out</p>
+                </div>
+                <div class="card shadow-lg rounded-4 border-0" style="background-color: #1e1e1e;">
+                    <div class="card-header pt-4" style="background-color: #181818; border: none;">
+                        <h4 class="text-center mb-0 text-white">Successfully Logged Out</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-check-circle fa-3x text-success"></i>
+                        </div>
+
+                        <div class="alert alert-success rounded-3">
+                            <p class="mb-0" style="color: #000000 !important;">
+                                You have been successfully logged out of your account. Thank you for using Finance Tracker!
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-footer pb-4 text-center" style="background-color: #181818; border: none;">
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg rounded-pill">
+                            <i class="fas fa-sign-in-alt me-2"></i>Log Back In
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <p class="small mb-0 text-white">&copy; {% now "Y" %} Finance Tracker. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Override any global styles for the logout page */
+    .card {
+        background-color: #1e1e1e !important;
+        border: none !important;
+    }
+    
+    .card-header, .card-footer {
+        background-color: #181818 !important;
+    }
+</style>
+{% endblock %} 

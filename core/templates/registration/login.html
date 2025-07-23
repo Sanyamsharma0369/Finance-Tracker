@@ -1,0 +1,146 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - Finance Tracker{% endblock %}
+
+{% block sidebar %}
+<!-- Hide sidebar on login page -->
+{% endblock %}
+
+{% block auth_content %}
+<div class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="text-center mb-5">
+                    <h1 class="display-4 text-white"><i class="fas fa-wallet me-3"></i>Finance Tracker</h1>
+                    <p class="lead text-white">Manage your finances with ease</p>
+                </div>
+                <div class="card shadow-lg rounded-4 border-0" style="background-color: #1e1e1e;">
+                    <div class="card-header pt-4" style="background-color: #181818; border: none;">
+                        <h4 class="text-center mb-0 text-white">Welcome Back</h4>
+                        <p class="text-center small" style="color: #aaaaaa !important;">Sign in to continue to your dashboard</p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="username" class="form-label text-white">
+                                    <i class="fas fa-user me-2" style="color: #aaaaaa !important;"></i>Username
+                                </label>
+                                <div class="form-control-wrapper">
+                                    <input type="text" class="form-control" id="username" name="username" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label text-white">
+                                    <i class="fas fa-lock me-2" style="color: #aaaaaa !important;"></i>Password
+                                </label>
+                                <div class="form-control-wrapper">
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                            </div>
+                            <div class="mb-4 d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                                    <label class="form-check-label text-white" for="remember_me">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="{% url 'password_reset_otp' %}" class="text-decoration-none" style="color: #3498db !important;">Forgot Password?</a>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer pb-4 text-center" style="background-color: #181818; border: none;">
+                        <p class="mb-0 text-white">Don't have an account? <a href="{% url 'register' %}" class="text-decoration-none fw-bold" style="color: #3498db !important;">Register here</a></p>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <p class="small mb-0 text-white">&copy; {% now "Y" %} Finance Tracker. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Override any global styles for the login page */
+    .form-control, .form-select {
+        color: white !important;
+        background-color: #333 !important;
+        border-color: #444 !important;
+    }
+    
+    .form-control:focus {
+        background-color: #333 !important;
+        color: white !important;
+        border-color: #3498db !important;
+        box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25) !important;
+    }
+    
+    .asteriskField {
+        color: #e74c3c !important;
+    }
+    
+    .form-check-input {
+        background-color: #333 !important;
+        border-color: #444 !important;
+    }
+    
+    .form-check-input:checked {
+        background-color: #3498db !important;
+        border-color: #3498db !important;
+    }
+    
+    /* Force crispy forms to use white text */
+    label.control-label, .form-text {
+        color: white !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            
+            if (!username.value.trim()) {
+                isValid = false;
+                username.classList.add('is-invalid');
+            } else {
+                username.classList.remove('is-invalid');
+            }
+            
+            if (!password.value.trim()) {
+                isValid = false;
+                password.classList.add('is-invalid');
+            } else {
+                password.classList.remove('is-invalid');
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,180 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}API Demo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>API Client Demo</h2>
+    <p class="text-muted">This page demonstrates the async API endpoints and data isolation features.</p>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Transactions API</h5>
+        </div>
+        <div class="card-body">
+            <button id="loadTransactions" class="btn btn-primary mb-3">
+                <i class="fas fa-sync-alt"></i> Load Transactions
+            </button>
+            
+            <div id="transactionsList" class="mb-4">
+                <p class="text-muted">Click the button above to load transactions...</p>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="number" id="transactionId" class="form-control" placeholder="Enter Transaction ID">
+                        <button id="loadTransaction" class="btn btn-info">
+                            <i class="fas fa-search"></i> Get Transaction
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="transactionDetail" class="mb-4">
+                <p class="text-muted">Enter a transaction ID above and click the button to load details...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card shadow">
+        <div class="card-header">
+            <h5 class="card-title mb-0">API Response</h5>
+        </div>
+        <div class="card-body">
+            <pre id="responseJson" class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto;">
+No data loaded yet. Use the buttons above.
+</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/api_client.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const api = new FinanceTrackerAPI();
+        const transactionsListElement = document.getElementById('transactionsList');
+        const transactionDetailElement = document.getElementById('transactionDetail');
+        const responseJsonElement = document.getElementById('responseJson');
+        
+        // Load all transactions
+        document.getElementById('loadTransactions').addEventListener('click', async function() {
+            try {
+                transactionsListElement.innerHTML = '<p>Loading transactions...</p>';
+                
+                const data = await api.getTransactions();
+                
+                // Display the raw JSON
+                responseJsonElement.textContent = JSON.stringify(data, null, 4);
+                
+                // Create a table of transactions
+                if (data.transactions && data.transactions.length > 0) {
+                    let html = `
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Category</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    data.transactions.forEach(transaction => {
+                        const typeClass = transaction.type === 'income' ? 'text-success' : 'text-danger';
+                        const amount = transaction.type === 'income' ? 
+                            `+${transaction.amount.toFixed(2)}` : 
+                            `-${transaction.amount.toFixed(2)}`;
+                            
+                        html += `
+                            <tr>
+                                <td>${transaction.id}</td>
+                                <td>${transaction.description}</td>
+                                <td class="${typeClass}">${amount}</td>
+                                <td>${transaction.date}</td>
+                                <td>${transaction.type}</td>
+                                <td>${transaction.category || 'None'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    transactionsListElement.innerHTML = html;
+                } else {
+                    transactionsListElement.innerHTML = '<p>No transactions found.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                transactionsListElement.innerHTML = `<p class="text-danger">Error loading transactions: ${error.message}</p>`;
+                responseJsonElement.textContent = `Error: ${error.message}`;
+            }
+        });
+        
+        // Load a single transaction
+        document.getElementById('loadTransaction').addEventListener('click', async function() {
+            const transactionId = document.getElementById('transactionId').value;
+            
+            if (!transactionId) {
+                transactionDetailElement.innerHTML = '<p class="text-warning">Please enter a transaction ID.</p>';
+                return;
+            }
+            
+            try {
+                transactionDetailElement.innerHTML = '<p>Loading transaction details...</p>';
+                
+                const data = await api.getTransaction(transactionId);
+                
+                // Display the raw JSON
+                responseJsonElement.textContent = JSON.stringify(data, null, 4);
+                
+                // Create a card with transaction details
+                if (data.transaction) {
+                    const transaction = data.transaction;
+                    const typeClass = transaction.type === 'income' ? 'text-success' : 'text-danger';
+                    const amount = transaction.type === 'income' ? 
+                        `+${transaction.amount.toFixed(2)}` : 
+                        `-${transaction.amount.toFixed(2)}`;
+                        
+                    let html = `
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                Transaction #${transaction.id}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">${transaction.description}</h5>
+                                <p class="card-text">
+                                    <span class="${typeClass} h4">${amount}</span><br>
+                                    <strong>Date:</strong> ${transaction.date}<br>
+                                    <strong>Type:</strong> ${transaction.type}<br>
+                                    <strong>Category:</strong> ${transaction.category || 'None'}<br>
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    transactionDetailElement.innerHTML = html;
+                } else {
+                    transactionDetailElement.innerHTML = '<p>No transaction found with that ID.</p>';
+                }
+            } catch (error) {
+                console.error(`Error loading transaction ${transactionId}:`, error);
+                transactionDetailElement.innerHTML = `<p class="text-danger">Error loading transaction: ${error.message}</p>`;
+                responseJsonElement.textContent = `Error: ${error.message}`;
+            }
+        });
+    });
+</script>
+{% endblock %} 

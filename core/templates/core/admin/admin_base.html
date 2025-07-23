@@ -1,0 +1,472 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<style>
+    /* Global Admin Theme */
+    body {
+        background-color: #1e2635;
+        color: #f8f9fa;
+        background-image: radial-gradient(rgba(62, 152, 199, 0.1) 2px, transparent 2px);
+        background-size: 30px 30px;
+    }
+    
+    .content-wrapper {
+        background-color: transparent;
+    }
+    
+    /* Sidebar styling */
+    #sidebar {
+        width: 240px;
+        background-color: #212529 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        z-index: 1040;
+    }
+    
+    #sidebar.collapsed {
+        width: 70px !important;
+    }
+    
+    #sidebar .app-brand {
+        background-color: #dc3545;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    #sidebar .app-brand h2 {
+        font-size: 1.5rem;
+        margin: 0;
+        color: white;
+    }
+    
+    #sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.75) !important;
+        border-left: 4px solid transparent;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        margin-bottom: 0.25rem;
+    }
+    
+    #sidebar .nav-link:hover {
+        color: #fff !important;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-left: 4px solid #dc3545;
+    }
+    
+    #sidebar .nav-link.active {
+        color: #fff !important;
+        background-color: rgba(220, 53, 69, 0.2);
+        border-left: 4px solid #dc3545;
+    }
+    
+    #sidebar .nav-link i {
+        width: 20px;
+        text-align: center;
+        margin-right: 10px;
+        font-size: 1.25rem;
+        color: #dc3545 !important;
+        filter: drop-shadow(0 0 2px rgba(220, 53, 69, 0.5)) !important;
+        transition: all 0.3s ease;
+    }
+    
+    #sidebar .nav-link:hover i {
+        transform: translateX(4px);
+        color: #ff6b6b !important;
+    }
+    
+    /* Collapsed sidebar styles */
+    #sidebar.collapsed .nav-link span {
+        display: none !important;
+    }
+    
+    #sidebar.collapsed .nav-link {
+        justify-content: center !important;
+        padding: 0.75rem 0 !important;
+        text-align: center !important;
+    }
+    
+    #sidebar.collapsed .nav-link i {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        font-size: 1.5rem !important;
+    }
+    
+    #sidebar.collapsed .app-brand h2 {
+        text-align: center !important;
+        padding: 0 !important;
+    }
+    
+    #sidebar.collapsed .app-brand h2 span {
+        display: none !important;
+    }
+    
+    #sidebar.collapsed .px-3,
+    #sidebar.collapsed hr {
+        display: none !important;
+    }
+    
+    /* Adjusted content margin for collapsed sidebar */
+    #content {
+        transition: margin-left 0.3s ease;
+    }
+    
+    #content.expanded {
+        margin-left: 70px !important;
+    }
+    
+    /* Card styles */
+    .card {
+        background-color: #2a3446;
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-header {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        padding: 1rem 1.25rem;
+    }
+    
+    .table {
+        color: #e9ecef;
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        background-color: rgba(0, 0, 0, 0.2);
+        color: #fff;
+        font-weight: 600;
+        padding: 1rem;
+    }
+    
+    .table td, .table th {
+        border-color: rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Admin badge pulse animation */
+    .admin-badge {
+        animation: pulse 2s infinite !important;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
+    }
+    
+    /* Form controls */
+    .form-control, .form-select {
+        background-color: #374357;
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #f8f9fa;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: #374357;
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        color: #f8f9fa;
+    }
+    
+    /* Buttons */
+    .btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Status indicators */
+    .status-badge {
+        padding: 0.35em 0.65em;
+        border-radius: 0.25rem;
+        font-size: 0.75em;
+        font-weight: 700;
+        display: inline-block;
+    }
+    
+    .status-active {
+        background-color: #2ec4b6;
+        color: white;
+    }
+    
+    .status-inactive {
+        background-color: #e63946;
+        color: white;
+    }
+    
+    /* Admin action icons */
+    .action-icon {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .action-icon-edit {
+        background-color: rgba(46, 196, 182, 0.2);
+        color: #2ec4b6;
+    }
+    
+    .action-icon-delete {
+        background-color: rgba(230, 57, 70, 0.2);
+        color: #e63946;
+    }
+    
+    .action-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Network background effect for admin pages */
+    .network-bg {
+        display: none; /* Remove this as we're applying the pattern to the body directly */
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+<div class="network-bg"></div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Admin Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block sidebar" id="sidebar">
+            <div class="position-sticky">
+                <div class="app-brand">
+                    <h2><i class="fas fa-shield-alt me-2"></i><span>Admin Panel</span></h2>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/manage/' %}active{% endif %}" href="{% url 'admin_dashboard' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-tachometer-alt"></i> <span>Admin Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/manage/users/' in request.path %}active{% endif %}" href="{% url 'admin_user_list' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-users"></i> <span>User Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/manage/transactions/' in request.path %}active{% endif %}" href="{% url 'admin_transactions' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-exchange-alt"></i> <span>All Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/manage/budgets/' in request.path %}active{% endif %}" href="{% url 'admin_budgets' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-chart-pie"></i> <span>All Budgets</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/manage/goals/' in request.path %}active{% endif %}" href="{% url 'admin_goals' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-bullseye"></i> <span>All Goals</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/manage/categories/' in request.path %}active{% endif %}" href="{% url 'admin_categories' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-tags"></i> <span>All Categories</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/manage/reports/' in request.path or '/manage/analyze-transactions/' in request.path %}active{% endif %}" href="{% url 'admin_reports' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr class="my-3 bg-secondary opacity-25">
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="{% url 'dashboard' %}" data-sidebar-preserve="true">
+                            <i class="fas fa-arrow-left"></i> <span>Exit Admin Mode</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr class="my-3 bg-secondary opacity-25">
+                
+                <div class="px-3">
+                    <div class="text-center mb-3">
+                        <span class="d-block fw-bold"><i class="fas fa-user-shield me-2"></i>{{ user.username }}</span>
+                        <small class="text-muted">Admin Account</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <form method="post" action="{% url 'custom_logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4" id="content">
+            <header class="mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <h2>{% block header %}Admin Dashboard{% endblock %}</h2>
+                    </div>
+                    <div class="admin-badge bg-danger text-white px-3 py-1 rounded-pill">
+                        <i class="fas fa-shield-alt me-1"></i> Admin Access
+                    </div>
+                </div>
+            </header>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Main content -->
+            <div class="content-wrapper animate__animated animate__fadeIn">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Apply animations to cards when they enter the viewport
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        // Observe all cards
+        document.querySelectorAll('.card').forEach(card => {
+            observer.observe(card);
+        });
+        
+        // Enhance hover effects on admin navigation
+        const navLinks = document.querySelectorAll('#sidebar .nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.style.transform = 'translateX(4px)';
+                    icon.style.color = '#ff6b6b';
+                }
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.style.transform = 'translateX(0)';
+                    icon.style.color = '';
+                }
+            });
+
+            // Prevent sidebar auto-expand when clicked on nav items in collapsed state
+            link.addEventListener('click', function(e) {
+                // Check if this link has the preserve attribute
+                if (this.getAttribute('data-sidebar-preserve')) {
+                    const sidebar = document.getElementById('sidebar');
+                    // Check if sidebar is collapsed
+                    if (sidebar && sidebar.classList.contains('collapsed')) {
+                        // Flag to prevent toggle on click
+                        window.preventSidebarToggle = true;
+                        
+                        // Just follow the link without expanding sidebar
+                        console.log("Navigation link clicked in collapsed state - maintaining sidebar state");
+                        
+                        // Store the current state to ensure it stays collapsed after navigation
+                        localStorage.setItem('sidebarCollapsed', 'true');
+                    }
+                }
+            });
+        });
+        
+        // Implement toggleSidebar function
+        function toggleSidebar(forceState = null) {
+            // Skip toggling if the preventSidebarToggle flag is set
+            if (window.preventSidebarToggle) {
+                console.log("Toggle prevented during navigation");
+                window.preventSidebarToggle = false;
+                return;
+            }
+            
+            // Otherwise perform the normal toggle
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const body = document.body;
+            
+            if (forceState === 'collapse') {
+                sidebar.classList.add('collapsed');
+                content.classList.add('expanded');
+                body.classList.add('sidebar-collapsed');
+            } else if (forceState === 'expand') {
+                sidebar.classList.remove('collapsed');
+                content.classList.remove('expanded');
+                body.classList.remove('sidebar-collapsed');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('expanded');
+                body.classList.toggle('sidebar-collapsed');
+            }
+            
+            // Save state to localStorage
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+        
+        // Make the toggleSidebar function globally available
+        window.toggleSidebar = toggleSidebar;
+        
+        // Force the sidebar to collapsed state after page load if it was previously collapsed
+        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (sidebarCollapsed) {
+            setTimeout(function() {
+                toggleSidebar('collapse');
+            }, 100);
+        }
+    });
+</script>
+{% endblock sidebar %} 

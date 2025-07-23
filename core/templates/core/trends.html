@@ -1,0 +1,598 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Financial Trends - Finance Tracker{% endblock %}
+
+{% block header %}Financial Trends{% endblock %}
+
+{% block content %}
+<!-- Include Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2/dist/chartjs-plugin-annotation.min.js"></script>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card hover-lift shadow-sm">
+            <div class="card-header d-flex align-items-center">
+                <i class="fas fa-sliders-h me-2 text-primary"></i>
+                <h5 class="mb-0">Trend Options</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-calendar me-2"></i>Time Range
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="timeRangeDropdown">
+                            <li><a class="dropdown-item time-range-option" href="#" data-range="30">Last 30 days</a></li>
+                            <li><a class="dropdown-item time-range-option" href="#" data-range="90">Last 3 months</a></li>
+                            <li><a class="dropdown-item time-range-option" href="#" data-range="180">Last 6 months</a></li>
+                            <li><a class="dropdown-item time-range-option" href="#" data-range="365">Last 12 months</a></li>
+                            <li><a class="dropdown-item time-range-option" href="#" data-range="all">All time</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item time-range-option" href="#" data-range="custom">Custom range</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-info dropdown-toggle" type="button" id="chartTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-chart-bar me-2"></i>Chart Type
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="chartTypeDropdown">
+                            <li><a class="dropdown-item chart-type-option" href="#" data-type="bar">Bar Chart</a></li>
+                            <li><a class="dropdown-item chart-type-option" href="#" data-type="line">Line Chart</a></li>
+                            <li><a class="dropdown-item chart-type-option" href="#" data-type="pie">Pie Chart</a></li>
+                            <li><a class="dropdown-item chart-type-option" href="#" data-type="doughnut">Doughnut Chart</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-success dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-tag me-2"></i>Category Filter
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                            <li><a class="dropdown-item category-option" href="#" data-category="all">All Categories</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Income Categories</h6></li>
+                            {% for category in income_categories %}
+                            <li><a class="dropdown-item category-option" href="#" data-category="{{ category.id }}">{{ category.name }}</a></li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Expense Categories</h6></li>
+                            {% for category in expense_categories %}
+                            <li><a class="dropdown-item category-option" href="#" data-category="{{ category.id }}">{{ category.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <button type="button" class="btn btn-outline-warning" id="toggleAnnotations">
+                        <i class="fas fa-info-circle me-2"></i>Toggle Annotations
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card hover-lift shadow-sm">
+            <div class="card-header d-flex align-items-center">
+                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                <h5 class="mb-0">Custom Date Range</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-primary hover-scale w-100" id="applyDateRange">
+                            <i class="fas fa-check me-2"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card hover-lift shadow">
+            <div class="card-header d-flex justify-content-between align-items-center bg-gradient-primary text-white">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-chart-line me-2"></i>
+                    <h5 class="mb-0">Income vs Expenses</h5>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-light active" id="Bar">
+                        <i class="fas fa-chart-bar me-1"></i>Bar
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light" id="Line">
+                        <i class="fas fa-chart-line me-1"></i>Line
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="chart-container" style="position: relative; height:400px; width:100%">
+                    <canvas id="incomeExpensesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card hover-lift shadow">
+            <div class="card-header d-flex align-items-center bg-gradient-danger text-white">
+                <i class="fas fa-funnel-dollar me-2"></i>
+                <h5 class="mb-0">Expense Categories</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="chart-container" style="position: relative; height:300px; width:100%">
+                    <canvas id="expenseCategoriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card hover-lift shadow">
+            <div class="card-header d-flex align-items-center bg-gradient-success text-white">
+                <i class="fas fa-money-bill-wave me-2"></i>
+                <h5 class="mb-0">Income Sources</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="chart-container" style="position: relative; height:300px; width:100%">
+                    <canvas id="incomeCategoriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card hover-lift shadow">
+            <div class="card-header d-flex align-items-center bg-gradient-info text-white">
+                <i class="fas fa-chart-area me-2"></i>
+                <h5 class="mb-0">Monthly Spending Patterns</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="chart-container" style="position: relative; height:400px; width:100%">
+                    <canvas id="monthlySpendingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row stats-grid">
+    <div class="col-md-4 mb-4">
+        <div class="card hover-lift shadow animate-fadeInUp">
+            <div class="card-body text-center p-4">
+                <div class="icon-box bg-primary-light mx-auto mb-3">
+                    <i class="fas fa-hand-holding-usd text-primary"></i>
+                </div>
+                <h6 class="text-muted">Average Monthly Income</h6>
+                <h3 class="mb-0" id="avgIncomeValue">$ 0.00</h3>
+                <div id="incomeVsPrevious" class="small mt-2">
+                    <span class="text-success">
+                        <i class="fas fa-arrow-up"></i> 0% vs previous period
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card hover-lift shadow animate-fadeInUp" style="animation-delay: 0.1s;">
+            <div class="card-body text-center p-4">
+                <div class="icon-box bg-danger-light mx-auto mb-3">
+                    <i class="fas fa-shopping-cart text-danger"></i>
+                </div>
+                <h6 class="text-muted">Average Monthly Expenses</h6>
+                <h3 class="mb-0" id="avgExpenseValue">$ 0.00</h3>
+                <div id="expenseVsPrevious" class="small mt-2">
+                    <span class="text-danger">
+                        <i class="fas fa-arrow-up"></i> 0% vs previous period
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card hover-lift shadow animate-fadeInUp" style="animation-delay: 0.2s;">
+            <div class="card-body text-center p-4">
+                <div class="icon-box bg-success-light mx-auto mb-3">
+                    <i class="fas fa-piggy-bank text-success"></i>
+                </div>
+                <h6 class="text-muted">Average Monthly Savings</h6>
+                <h3 class="mb-0" id="avgSavingsValue">$ 0.00</h3>
+                <div id="savingsVsPrevious" class="small mt-2">
+                    <span class="text-success">
+                        <i class="fas fa-arrow-up"></i> 0% vs previous period
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize default chart type and data
+let currentChartType = 'bar';
+
+// Sample data - replace with actual data from your backend
+const chartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    income: [2500, 3200, 2800, 3100, 2900, 3500],
+    expenses: [1800, 2100, 1900, 2300, 2200, 2400]
+};
+
+// Initialize charts when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Register the annotation plugin if it exists
+    if (Chart.annotation) {
+        Chart.register(Chart.annotation);
+    }
+    
+    renderIncomeExpenseChart();
+    renderCategoryCharts();
+    renderMonthlySpendingChart();
+    updateStatistics();
+    
+    // Set up event listeners for the chart type buttons
+    document.getElementById('Bar').addEventListener('click', function() {
+        document.getElementById('Bar').classList.add('active');
+        document.getElementById('Line').classList.remove('active');
+        currentChartType = 'bar';
+        renderIncomeExpenseChart();
+    });
+    
+    document.getElementById('Line').addEventListener('click', function() {
+        document.getElementById('Line').classList.add('active');
+        document.getElementById('Bar').classList.remove('active');
+        currentChartType = 'line';
+        renderIncomeExpenseChart();
+    });
+});
+
+// Helper function to get average value
+function getAverageValue(data) {
+    return data.reduce((sum, value) => sum + value, 0) / data.length;
+}
+
+// Income vs Expenses chart
+function renderIncomeExpenseChart() {
+    const ctx = document.getElementById('incomeExpensesChart').getContext('2d');
+    
+    // Clean up any existing chart
+    if (window.incomeExpensesChart) {
+        window.incomeExpensesChart.destroy();
+    }
+    
+    // Configure dataset appearance based on chart type
+    const datasets = [
+        {
+            label: 'Income',
+            data: chartData.income,
+            backgroundColor: 'rgba(40, 167, 69, 0.5)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 1
+        },
+        {
+            label: 'Expenses',
+            data: chartData.expenses,
+            backgroundColor: 'rgba(220, 53, 69, 0.5)',
+            borderColor: 'rgba(220, 53, 69, 1)',
+            borderWidth: 1
+        }
+    ];
+    
+    // Add line chart specific properties
+    if (currentChartType === 'line') {
+        datasets.forEach(dataset => {
+            dataset.fill = false;
+            dataset.tension = 0.1;
+            dataset.pointRadius = 4;
+            dataset.pointHoverRadius = 6;
+        });
+    }
+    
+    const avgIncome = getAverageValue(chartData.income);
+    const avgExpenses = getAverageValue(chartData.expenses);
+    
+    // Create chart options
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `${context.dataset.label}: $${context.raw.toFixed(2)}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value;
+                    }
+                }
+            }
+        }
+    };
+    
+    // Add annotation plugin for bar chart type
+    if (currentChartType === 'bar' && Chart.annotation) {
+        options.plugins.annotation = {
+            annotations: {
+                line1: {
+                    type: 'line',
+                    yMin: avgIncome,
+                    yMax: avgIncome,
+                    borderColor: 'rgba(40, 167, 69, 0.5)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        content: `Avg Income: $${avgIncome.toFixed(2)}`,
+                        enabled: true,
+                        position: 'end'
+                    }
+                },
+                line2: {
+                    type: 'line',
+                    yMin: avgExpenses,
+                    yMax: avgExpenses,
+                    borderColor: 'rgba(220, 53, 69, 0.5)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        content: `Avg Expenses: $${avgExpenses.toFixed(2)}`,
+                        enabled: true,
+                        position: 'end'
+                    }
+                }
+            }
+        };
+    }
+    
+    // Create the chart
+    window.incomeExpensesChart = new Chart(ctx, {
+        type: currentChartType,
+        data: {
+            labels: chartData.labels,
+            datasets: datasets
+        },
+        options: options
+    });
+}
+
+// Function to render Category Charts
+function renderCategoryCharts() {
+    // Check if expense categories chart exists
+    const expenseCtx = document.getElementById('expenseCategoriesChart');
+    if (expenseCtx) {
+        // Clean up any existing chart
+        if (window.expenseCategoriesChart) {
+            window.expenseCategoriesChart.destroy();
+        }
+        
+        // Create expense categories chart
+        window.expenseCategoriesChart = new Chart(expenseCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Housing', 'Food', 'Transportation', 'Entertainment', 'Utilities', 'Other'],
+                datasets: [{
+                    data: [30, 20, 15, 10, 15, 10],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: ${percentage}% ($${value})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Check if income categories chart exists
+    const incomeCtx = document.getElementById('incomeCategoriesChart');
+    if (incomeCtx) {
+        // Clean up any existing chart
+        if (window.incomeCategoriesChart) {
+            window.incomeCategoriesChart.destroy();
+        }
+        
+        // Create income categories chart
+        window.incomeCategoriesChart = new Chart(incomeCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Salary', 'Freelance', 'Investments', 'Gifts', 'Other'],
+                datasets: [{
+                    data: [65, 15, 10, 5, 5],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.7)',
+                        'rgba(0, 123, 255, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(23, 162, 184, 0.7)',
+                        'rgba(108, 117, 125, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: ${percentage}% ($${value})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Function to render Monthly Spending Pattern chart
+function renderMonthlySpendingChart() {
+    const ctx = document.getElementById('monthlySpendingChart');
+    if (ctx) {
+        // Clean up any existing chart
+        if (window.monthlySpendingChart) {
+            window.monthlySpendingChart.destroy();
+        }
+        
+        // Create monthly spending chart
+        window.monthlySpendingChart = new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Last Year',
+                        data: [1200, 1300, 1400, 1100, 1500, 1350, 1250, 1400, 1300, 1450, 1500, 1600],
+                        borderColor: 'rgba(180, 180, 180, 1)',
+                        backgroundColor: 'rgba(180, 180, 180, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: 'This Year',
+                        data: [1300, 1400, 1500, 1200, 1600, 1450, 1350, 1500, 1400, 1550, 1600, 1700],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: $${context.raw.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Function to update statistics
+function updateStatistics() {
+    // Check if statistics elements exist
+    const avgIncomeValue = document.getElementById('avgIncomeValue');
+    const avgExpenseValue = document.getElementById('avgExpenseValue');
+    const avgSavingsValue = document.getElementById('avgSavingsValue');
+    
+    if (avgIncomeValue && avgExpenseValue && avgSavingsValue) {
+        const avgIncome = getAverageValue(chartData.income);
+        const avgExpense = getAverageValue(chartData.expenses);
+        const avgSavings = avgIncome - avgExpense;
+        
+        avgIncomeValue.textContent = `$${avgIncome.toFixed(2)}`;
+        avgExpenseValue.textContent = `$${avgExpense.toFixed(2)}`;
+        avgSavingsValue.textContent = `$${avgSavings.toFixed(2)}`;
+        
+        // Update trend indicators if they exist
+        const incomeVsPrevious = document.getElementById('incomeVsPrevious');
+        const expenseVsPrevious = document.getElementById('expenseVsPrevious');
+        const savingsVsPrevious = document.getElementById('savingsVsPrevious');
+        
+        if (incomeVsPrevious && expenseVsPrevious && savingsVsPrevious) {
+            // Sample trend values (in a real app, this would be calculated)
+            const incomeTrend = 5.2;
+            const expenseTrend = 3.7;
+            const savingsTrend = 8.4;
+            
+            incomeVsPrevious.innerHTML = incomeTrend >= 0 ?
+                `<span class="text-success"><i class="fas fa-arrow-up"></i> ${incomeTrend.toFixed(1)}% vs previous period</span>` :
+                `<span class="text-danger"><i class="fas fa-arrow-down"></i> ${Math.abs(incomeTrend).toFixed(1)}% vs previous period</span>`;
+                
+            expenseVsPrevious.innerHTML = expenseTrend <= 0 ?
+                `<span class="text-success"><i class="fas fa-arrow-down"></i> ${Math.abs(expenseTrend).toFixed(1)}% vs previous period</span>` :
+                `<span class="text-danger"><i class="fas fa-arrow-up"></i> ${expenseTrend.toFixed(1)}% vs previous period</span>`;
+                
+            savingsVsPrevious.innerHTML = savingsTrend >= 0 ?
+                `<span class="text-success"><i class="fas fa-arrow-up"></i> ${savingsTrend.toFixed(1)}% vs previous period</span>` :
+                `<span class="text-danger"><i class="fas fa-arrow-down"></i> ${Math.abs(savingsTrend).toFixed(1)}% vs previous period</span>`;
+        }
+    }
+}
+</script>
+{% endblock %}

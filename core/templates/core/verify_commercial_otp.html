@@ -1,0 +1,335 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Verify Business Account - Finance Tracker{% endblock %}
+
+{% block sidebar %}
+<!-- Hide sidebar on verify page -->
+{% endblock %}
+
+{% block auth_content %}
+<div class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="text-center mb-4 text-white">
+                    <h1 class="display-4"><i class="fas fa-wallet me-3"></i>Finance Tracker</h1>
+                    <p class="lead">Verify Your Business Account</p>
+                </div>
+                <div class="card shadow-lg rounded-4 border-0">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h4 class="text-center mb-0"><i class="fas fa-building me-2"></i>Business Verification</h4>
+                        <p class="text-center text-muted small">Enter the code sent to your business email</p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <div class="text-center mb-4">
+                            <div class="mb-2">
+                                <i class="fas fa-envelope-open-text fa-3x text-primary mb-3"></i>
+                            </div>
+                            <p>We've sent a verification code to your business email address.</p>
+                            <p class="text-muted small">The code will expire in <span id="countdown">05:00</span></p>
+                        </div>
+                        
+                        <form method="post" id="otpForm" class="mt-3">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="{{ form.otp_code.id_for_label }}" class="form-label">
+                                    <i class="fas fa-key text-muted me-2"></i>Verification Code
+                                </label>
+                                <div class="digit-group d-flex justify-content-center">
+                                    <input type="text" id="digit-1" name="digit-1" class="form-control digit-input text-center fs-4 mx-1" maxlength="1" autocomplete="off">
+                                    <input type="text" id="digit-2" name="digit-2" class="form-control digit-input text-center fs-4 mx-1" maxlength="1" autocomplete="off">
+                                    <input type="text" id="digit-3" name="digit-3" class="form-control digit-input text-center fs-4 mx-1" maxlength="1" autocomplete="off">
+                                    <input type="text" id="digit-4" name="digit-4" class="form-control digit-input text-center fs-4 mx-1" maxlength="1" autocomplete="off">
+                                    <input type="text" id="digit-5" name="digit-5" class="form-control digit-input text-center fs-4 mx-1" maxlength="1" autocomplete="off">
+                                    <input type="text" id="digit-6" name="digit-6" class="form-control digit-input text-center fs-4 mx-1" maxlength="1" autocomplete="off">
+                                </div>
+                                <input type="hidden" id="{{ form.otp_code.id_for_label }}" name="{{ form.otp_code.name }}" class="form-control">
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                    <i class="fas fa-check-circle me-2"></i>Verify Business Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-4 text-center">
+                        <p class="mb-0">Didn't receive a code? <a href="#" id="resendOTP" class="text-decoration-none fw-bold">Resend Code</a></p>
+                        <p class="mt-2 mb-0"><a href="{% url 'commercial_register' %}" class="text-decoration-none"> <i class="fas fa-arrow-left me-1"></i>Back to Registration</a></p>
+                    </div>
+                </div>
+                
+                <div class="card shadow-lg rounded-4 border-0 mt-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title"><i class="fas fa-info-circle me-2 text-primary"></i>Next Steps</h5>
+                        <p class="card-text">After verification, your business account will require approval from our team. You'll receive an email once your account is approved.</p>
+                        <div class="d-flex mt-3">
+                            <div class="me-3 text-center">
+                                <div class="bg-primary rounded-circle text-white d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">1</div>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold">Verification</p>
+                                <p class="text-muted small">Verify your email with the code</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mt-2">
+                            <div class="me-3 text-center">
+                                <div class="bg-primary rounded-circle text-white d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">2</div>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold">Review</p>
+                                <p class="text-muted small">Our team reviews your business information</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mt-2">
+                            <div class="me-3 text-center">
+                                <div class="bg-primary rounded-circle text-white d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">3</div>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold">Approval</p>
+                                <p class="text-muted small">You'll receive an email once your account is approved</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .digit-input {
+        width: 45px;
+        height: 60px;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        background-color: #fff;
+        font-weight: bold;
+    }
+    
+    .digit-input:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+    }
+    
+    /* Style for entered digits */
+    .digit-input.filled {
+        background-color: #f8f9fa;
+        color: #212529;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .digit-input {
+            width: 40px;
+            height: 50px;
+            font-size: 1.2rem !important;
+        }
+    }
+    
+    /* Animation for resend button */
+    #resendOTP.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .countdown-warning {
+        color: #dc3545;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const otpForm = document.getElementById('otpForm');
+        const hiddenInput = document.getElementById('{{ form.otp_code.id_for_label }}');
+        const digitInputs = document.querySelectorAll('.digit-input');
+        const resendBtn = document.getElementById('resendOTP');
+        const countdownEl = document.getElementById('countdown');
+        
+        // Initialize a 5-minute countdown
+        let timeLeft = 5 * 60; // 5 minutes in seconds
+        
+        // Start countdown timer
+        const countdownTimer = setInterval(function() {
+            timeLeft--;
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Add warning class when less than 1 minute remains
+            if (timeLeft < 60) {
+                countdownEl.classList.add('countdown-warning');
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdownTimer);
+                countdownEl.textContent = '00:00';
+                alert('Verification code has expired. Please request a new one.');
+            }
+        }, 1000);
+        
+        // Focus on first digit input on page load
+        digitInputs[0].focus();
+        
+        // Event listeners for digit inputs
+        digitInputs.forEach((input, index) => {
+            // Focus next input after entering a digit
+            input.addEventListener('input', function() {
+                if (this.value.length === 1) {
+                    this.classList.add('filled');
+                    if (index < digitInputs.length - 1) {
+                        digitInputs[index + 1].focus();
+                    }
+                } else {
+                    this.classList.remove('filled');
+                }
+                
+                // Update hidden input with full OTP code
+                updateHiddenInput();
+            });
+            
+            // Handle backspace
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value) {
+                    if (index > 0) {
+                        digitInputs[index - 1].focus();
+                        digitInputs[index - 1].value = '';
+                        digitInputs[index - 1].classList.remove('filled');
+                    }
+                }
+            });
+            
+            // Allow only numeric input
+            input.addEventListener('keypress', function(e) {
+                const charCode = e.which ? e.which : e.keyCode;
+                if (charCode < 48 || charCode > 57) {
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Function to update hidden input with compiled OTP
+        function updateHiddenInput() {
+            const otpValue = Array.from(digitInputs).map(input => input.value).join('');
+            hiddenInput.value = otpValue;
+        }
+        
+        // Handle form submission
+        otpForm.addEventListener('submit', function(e) {
+            updateHiddenInput();
+            
+            // Basic validation before submitting
+            if (hiddenInput.value.length !== 6) {
+                e.preventDefault();
+                alert('Please enter the 6-digit verification code.');
+            }
+        });
+        
+        // Handle OTP resend
+        let resendCooldown = 0;
+        
+        resendBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (resendBtn.classList.contains('disabled')) {
+                return;
+            }
+            
+            // Start cooldown
+            resendBtn.classList.add('disabled');
+            resendCooldown = 60;
+            
+            const updateCooldown = () => {
+                if (resendCooldown > 0) {
+                    resendBtn.textContent = `Resend Code (${resendCooldown}s)`;
+                    resendCooldown--;
+                    setTimeout(updateCooldown, 1000);
+                } else {
+                    resendBtn.textContent = 'Resend Code';
+                    resendBtn.classList.remove('disabled');
+                }
+            };
+            
+            updateCooldown();
+            
+            // Reset countdown timer
+            timeLeft = 5 * 60;
+            countdownEl.classList.remove('countdown-warning');
+            
+            // Send AJAX request to resend OTP
+            fetch('{% url "resend_otp" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const alertHtml = `
+                        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                    
+                    const existingAlert = document.querySelector('.alert');
+                    if (existingAlert) {
+                        existingAlert.remove();
+                    }
+                    
+                    otpForm.insertAdjacentHTML('beforebegin', alertHtml);
+                    
+                    // Clear inputs
+                    digitInputs.forEach(input => {
+                        input.value = '';
+                        input.classList.remove('filled');
+                    });
+                    
+                    // Focus on first input
+                    digitInputs[0].focus();
+                } else {
+                    // Show error message
+                    const alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i> ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                    
+                    const existingAlert = document.querySelector('.alert');
+                    if (existingAlert) {
+                        existingAlert.remove();
+                    }
+                    
+                    otpForm.insertAdjacentHTML('beforebegin', alertHtml);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,65 @@
+{% extends 'core/admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Admin - Delete User{% endblock %}
+{% block header %}Delete User{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Confirm User Deletion</h6>
+        <a href="{% url 'admin_user_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back to Users
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i> Warning!</h5>
+            <p>You are about to permanently delete the user <strong>{{ user.username }}</strong>. This action cannot be undone.</p>
+            <p class="mb-0"><strong>Note:</strong> Deleting this user will also delete all their transactions, budgets, categories, and financial goals.</p>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">User Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> {{ user.id }}</p>
+                        <p><strong>Username:</strong> {{ user.username }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        <p><strong>Full Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Date Joined:</strong> {{ user.date_joined }}</p>
+                        <p><strong>Last Login:</strong> {{ user.last_login|default:"Never" }}</p>
+                        <p><strong>Account Type:</strong> 
+                            <span class="badge {% if user.userprofile.is_commercial %}bg-info{% else %}bg-primary{% endif %}">
+                                {% if user.userprofile.is_commercial %}Commercial{% else %}Personal{% endif %}
+                            </span>
+                        </p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" class="text-center">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i> Yes, Delete User
+                </button>
+                <a href="{% url 'admin_user_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,104 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Resend Verification Email - Finance Tracker{% endblock %}
+
+{% block sidebar %}
+<!-- Hide sidebar on this page -->
+{% endblock %}
+
+{% block auth_content %}
+<div class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #0d1b31 0%, #1a2c52 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="text-center mb-5 text-white">
+                    <h1 class="display-4"><i class="fas fa-wallet me-3"></i>Finance Tracker</h1>
+                    <p class="lead">Resend Verification Email</p>
+                </div>
+                <div class="card shadow-lg rounded-4 border-0" style="background-color: #121212; border: 1px solid #333 !important;">
+                    <div class="card-header border-0 pt-4" style="background-color: #121212;">
+                        <h4 class="text-center mb-0 text-white">Verify Your Email</h4>
+                        <p class="text-center text-muted small">Enter your email to receive a new verification link</p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <form method="post" id="resendForm" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- Email field -->
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label text-white">
+                                    <i class="fas fa-envelope text-info me-2"></i>Email Address
+                                </label>
+                                <input type="email" name="email" id="id_email" class="form-control bg-dark text-white border-secondary" placeholder="Your email address" required style="box-shadow: 0 0 10px rgba(0,0,0,0.5);">
+                                <div class="invalid-feedback text-warning">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-info btn-lg rounded-pill">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Verification Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-dark border-0 pb-4 text-center">
+                        <p class="mb-2"><a href="{% url 'login' %}" class="text-decoration-none text-info">Back to Login</a></p>
+                        <p class="mb-0 text-white">Don't have an account? <a href="{% url 'register' %}" class="text-decoration-none text-info fw-bold">Sign Up</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('resendForm');
+        
+        // Client-side form validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const email = document.getElementById('id_email');
+            
+            // Email validation
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value.trim() || !emailPattern.test(email.value.trim())) {
+                isValid = false;
+                email.classList.add('is-invalid');
+            } else {
+                email.classList.remove('is-invalid');
+                email.classList.add('is-valid');
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        
+        // Animated entrance for form elements
+        const formElements = document.querySelectorAll('#resendForm .mb-3, #resendForm .d-grid');
+        formElements.forEach((element, index) => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            setTimeout(() => {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, 100 + (index * 100));
+        });
+    });
+</script>
+{% endblock %} 

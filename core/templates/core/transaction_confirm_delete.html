@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Delete Transaction | Finance Tracker{% endblock %}
+
+{% block header %}Delete Transaction{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-trash me-2"></i>Delete Transaction</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Warning
+                    </h6>
+                    <p class="mb-0">
+                        Are you sure you want to delete the transaction "{{ transaction.description }}"?
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Transaction Details</h6>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Description:</div>
+                            <div class="col-sm-8">{{ transaction.description }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Amount:</div>
+                            <div class="col-sm-8">${{ transaction.amount }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Date:</div>
+                            <div class="col-sm-8">{{ transaction.date }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Type:</div>
+                            <div class="col-sm-8">
+                                <span class="badge {% if transaction.type|lower == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ transaction.type|title }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4">Category:</div>
+                            <div class="col-sm-8">{{ transaction.category.name }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'transaction_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Delete Transaction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

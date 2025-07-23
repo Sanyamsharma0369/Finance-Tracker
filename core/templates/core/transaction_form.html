@@ -1,0 +1,206 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% if form.instance.pk %}Edit Transaction{% else %}Add New Transaction{% endif %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_type" class="form-label">Type</label>
+                            {{ form.type }}
+                            {% if form.type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.type.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="id_category" class="form-label">Category</label>
+                            <select name="category" id="id_category" class="form-select" required>
+                                <option value="">Select a category</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" data-type="{{ category.type }}" 
+                                        {% if form.instance.category_id == category.id %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.category.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="mt-2">
+                                <a href="{% url 'category_create' %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-plus-circle"></i> Create New Category
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_amount" class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">{{ currency_symbol }}</span>
+                                {{ form.amount }}
+                            </div>
+                            {% if form.amount.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.amount.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="id_date" class="form-label">Date</label>
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.date.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form.is_recurring }}
+                                <label class="form-check-label" for="id_is_recurring">
+                                    Recurring Transaction
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3" id="recurring-frequency-group" style="display: none;">
+                            <label for="id_recurring_frequency" class="form-label">Frequency</label>
+                            {{ form.recurring_frequency }}
+                            {% if form.recurring_frequency.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.recurring_frequency.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_receipt" class="form-label">Receipt (Optional)</label>
+                        {{ form.receipt }}
+                        {% if form.receipt.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.receipt.errors }}
+                            </div>
+                        {% endif %}
+                        {% if form.instance.receipt %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.receipt.url }}" alt="Current Receipt" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
+                        {% endif %}
+                        <div id="receipt-preview" class="mt-2" style="display: none;">
+                            <img src="" alt="Receipt Preview" class="img-thumbnail" style="max-height: 200px;">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            {% if form.instance.pk %}Update Transaction{% else %}Add Transaction{% endif %}
+                        </button>
+                        <a href="{% url 'transaction_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Receipt preview logic
+    const receiptInput = document.getElementById('id_receipt');
+    const previewContainer = document.getElementById('receipt-preview');
+    const previewImage = previewContainer.querySelector('img');
+    
+    if (receiptInput) {
+        receiptInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        });
+    }
+
+    // Recurring transaction logic
+    const isRecurringCheckbox = document.getElementById('id_is_recurring');
+    const recurringFrequencyGroup = document.getElementById('recurring-frequency-group');
+    
+    if (isRecurringCheckbox && recurringFrequencyGroup) {
+        isRecurringCheckbox.addEventListener('change', function() {
+            recurringFrequencyGroup.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Initialize on page load
+        recurringFrequencyGroup.style.display = isRecurringCheckbox.checked ? 'block' : 'none';
+    }
+
+    // Filter categories based on transaction type
+    const typeSelect = document.getElementById('id_type');
+    const categorySelect = document.getElementById('id_category');
+    
+    if (typeSelect && categorySelect) {
+        typeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            const categoryOptions = categorySelect.querySelectorAll('option');
+            
+            categoryOptions.forEach(option => {
+                if (option.value === '') {
+                    // Always show the "Select a category" option
+                    option.style.display = '';
+                } else {
+                    // Show only categories that match the selected type
+                    const categoryType = option.getAttribute('data-type');
+                    if (categoryType === selectedType || selectedType === '') {
+                        option.style.display = '';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Reset selection if current selection is now hidden
+            if (categorySelect.selectedOptions[0].style.display === 'none') {
+                categorySelect.value = '';
+            }
+        });
+        
+        // Initialize on page load
+        typeSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,526 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Finance Tracker{% endblock %}
+
+{% block header %}
+{% if user.is_staff %}
+<div class="d-flex justify-content-between align-items-center">
+    <span>Dashboard</span>
+    <div class="admin-badge bg-danger text-white px-3 py-1 rounded-pill">
+        <i class="fas fa-shield-alt me-1"></i> Admin Access
+    </div>
+</div>
+{% else %}
+Dashboard
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Admin Panel Access -->
+{% if user.is_staff %}
+<div class="alert alert-danger mb-4 animate__animated animate__fadeIn">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-shield-alt me-2"></i> <strong>Admin Mode Active:</strong> You have administrator privileges.
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-danger btn-sm">
+            <i class="fas fa-tools me-1"></i> Open Admin Dashboard
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Dashboard action row -->
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <h3 class="mb-0 fw-bold">Your Financial Overview</h3>
+        <p class="text-muted mb-0">Welcome back, {% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}!</p>
+    </div>
+    <div class="col-md-5 text-end">
+        <a href="{% url 'export_pdf' %}" class="btn btn-success">
+            <i class="fas fa-file-pdf me-2"></i>Export Financial Report
+        </a>
+    </div>
+</div>
+
+<!-- Mobile Summary Cards (Visible only on small screens) -->
+<div class="d-md-none mb-4">
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <!-- Income Card -->
+            <div class="swiper-slide">
+                <div class="card shadow card-stats animate__animated animate__fadeInUp">
+                    <div class="card-header bg-success bg-opacity-10">
+                        <h5 class="mb-0 text-success"><i class="fas fa-dollar-sign me-2"></i>Income</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div>
+                            <h3 class="text-success fw-bold">{{ currency_symbol }}{{ current_month_income|floatformat:2 }}</h3>
+                            <p class="text-muted mb-0">This month</p>
+                        </div>
+                        <i class="fas fa-arrow-up text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Expenses Card -->
+            <div class="swiper-slide">
+                <div class="card shadow card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="card-header bg-danger bg-opacity-10">
+                        <h5 class="mb-0 text-danger"><i class="fas fa-shopping-cart me-2"></i>Expenses</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div>
+                            <h3 class="text-danger fw-bold">{{ currency_symbol }}{{ current_month_expenses|floatformat:2 }}</h3>
+                            <p class="text-muted mb-0">This month</p>
+                        </div>
+                        <i class="fas fa-arrow-down text-danger fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Balance Card -->
+            <div class="swiper-slide">
+                <div class="card shadow card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                    <div class="card-header bg-primary bg-opacity-10">
+                        <h5 class="mb-0 text-primary"><i class="fas fa-chart-line me-2"></i>Balance</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div>
+                            <h3 class="fw-bold {% if net_income >= 0 %}text-primary{% else %}text-danger{% endif %}">{{ currency_symbol }}{{ net_income|floatformat:2 }}</h3>
+                            <p class="text-muted mb-0">Net savings</p>
+                        </div>
+                        <i class="fas fa-wallet fa-2x {% if net_income >= 0 %}text-primary{% else %}text-danger{% endif %}"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Navigation arrows and pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+</div>
+
+<!-- Desktop Summary Cards (Hidden on small screens) -->
+<div class="row mb-4 d-none d-md-flex">
+    <!-- Monthly Summary -->
+    <div class="col-md-4">
+        <div class="card h-100 shadow card-stats animate__animated animate__fadeInUp">
+            <div class="card-header bg-success bg-opacity-10">
+                <h5 class="mb-0 text-success"><i class="fas fa-dollar-sign me-2"></i>Monthly Income</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="text-success fw-bold">{{ currency_symbol }}{{ current_month_income|floatformat:2 }}</h3>
+                    <p class="text-muted mb-0">This month</p>
+                </div>
+                <div class="icon-circle bg-success-light">
+                    <i class="fas fa-arrow-up text-success fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <div class="card-header bg-danger bg-opacity-10">
+                <h5 class="mb-0 text-danger"><i class="fas fa-shopping-cart me-2"></i>Monthly Expenses</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="text-danger fw-bold">{{ currency_symbol }}{{ current_month_expenses|floatformat:2 }}</h3>
+                    <p class="text-muted mb-0">This month</p>
+                </div>
+                <div class="icon-circle bg-danger-light">
+                    <i class="fas fa-arrow-down text-danger fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h5 class="mb-0 text-primary"><i class="fas fa-chart-line me-2"></i>Current Balance</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="fw-bold {% if net_income >= 0 %}text-primary{% else %}text-danger{% endif %}">{{ currency_symbol }}{{ net_income|floatformat:2 }}</h3>
+                    <p class="text-muted mb-0">Available funds</p>
+                </div>
+                <div class="icon-circle {% if net_income >= 0 %}bg-primary-light{% else %}bg-danger-light{% endif %}">
+                    <i class="fas fa-wallet fa-2x {% if net_income >= 0 %}text-primary{% else %}text-danger{% endif %}"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Insights and Recommendations -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+            <div class="card-header bg-info bg-opacity-10">
+                <h5 class="mb-0 text-info"><i class="fas fa-lightbulb me-2"></i>Insights & Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6 mb-3 mb-lg-0">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-chart-pie me-2 text-primary"></i>Spending Insights</h6>
+                        <ul class="list-group">
+                            {% for insight in expense_insights %}
+                            <li class="list-group-item border-0 ps-0">
+                                <i class="fas fa-info-circle me-2 text-primary"></i>{{ insight }}
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item border-0 ps-0">
+                                <i class="fas fa-info-circle me-2 text-muted"></i>No insights available yet. Continue tracking your expenses for personalized insights.
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-lg-6">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-hand-holding-usd me-2 text-success"></i>Savings Recommendations</h6>
+                        <ul class="list-group">
+                            {% for recommendation in savings_recommendations %}
+                            <li class="list-group-item border-0 ps-0">
+                                <i class="fas fa-check-circle me-2 text-success"></i>{{ recommendation }}
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item border-0 ps-0">
+                                <i class="fas fa-check-circle me-2 text-muted"></i>No recommendations available yet. Continue tracking your expenses for personalized recommendations.
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Chart -->
+    <div class="col-lg-8 mb-4 mb-lg-0">
+        <div class="card shadow h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Income vs Expenses</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary active" data-chart-type="bar">
+                            <i class="fas fa-chart-bar me-1"></i>Bar
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" data-chart-type="line">
+                            <i class="fas fa-chart-line me-1"></i>Line
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="incomeExpenseChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Savings Rate -->
+    <div class="col-lg-4">
+        <div class="card shadow h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.5s;">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-piggy-bank me-2"></i>Savings Rate</h5>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="savings-rate-circle mb-4 position-relative d-flex align-items-center justify-content-center" 
+                     style="width: 180px; height: 180px; border-radius: 50%; background: conic-gradient(#4361ee {{ savings_rate }}%, #e0e0e0 0%); box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                    <div class="position-absolute bg-white" style="width: 140px; height: 140px; border-radius: 50%;"></div>
+                    <div class="position-relative text-center">
+                        <h2 class="savings-percentage mb-0">{{ savings_rate }}%</h2>
+                        <p class="savings-label mb-0">of income saved</p>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="mb-1 fw-bold">Monthly Savings</p>
+                    <h4 class="{% if net_income >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">{{ currency_symbol }}{{ net_income|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Recent Transactions -->
+    <div class="col-xl-6 mb-4">
+        <div class="card shadow h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.6s;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Recent Transactions</h5>
+                <a href="{% url 'transaction_list' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-list me-1"></i>View All
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>{{ transaction.description }}</td>
+                                <td>
+                                    {% if transaction.category %}
+                                    <span class="badge bg-secondary">{{ transaction.category.name }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ transaction.category }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.date|date:"M d, Y" }}</td>
+                                <td class="{% if transaction.type == 'income' %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                    {% if transaction.type == 'income' %}+{% else %}-{% endif %}{{ currency_symbol }}{{ transaction.amount|floatformat:2 }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <i class="fas fa-receipt fa-2x mb-3 text-muted"></i>
+                                    <p class="mb-0">No transactions yet</p>
+                                    <a href="{% url 'transaction_create' %}" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-plus me-1"></i>Add Transaction
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Budget Progress -->
+    <div class="col-xl-6 mb-4">
+        <div class="card shadow h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.7s;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Budget Progress</h5>
+                <a href="{% url 'budget_list' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-list me-1"></i>View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if budget_progress %}
+                <div class="row">
+                    {% for budget in budget_progress %}
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold">{{ budget.category__name }}</span>
+                            <span class="{% if budget.percentage > 100 %}text-danger{% elif budget.percentage > 80 %}text-warning{% else %}text-success{% endif %}">
+                                {{ budget.current|floatformat:0 }}% of {{ currency_symbol }}{{ budget.amount|floatformat:0 }}
+                            </span>
+                        </div>
+                        <div class="progress mb-1" style="height: 12px;">
+                            <div class="progress-bar {% if budget.percentage > 100 %}bg-danger{% elif budget.percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ budget.percentage|floatformat:0 }}%; max-width: 100%;" 
+                                 aria-valuenow="{{ budget.percentage|floatformat:0 }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-chart-pie fa-2x mb-3 text-muted"></i>
+                    <p class="mb-0">No budgets set up yet</p>
+                    <a href="{% url 'budget_create' %}" class="btn btn-sm btn-primary mt-2">
+                        <i class="fas fa-plus me-1"></i>Create Budget
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Financial Goals -->
+    <div class="col-12">
+        <div class="card shadow animate__animated animate__fadeInUp" style="animation-delay: 0.8s;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Financial Goals</h5>
+                <a href="{% url 'goal_list' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-list me-1"></i>View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if goals %}
+                <div class="row">
+                    {% for goal in goals %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold">{{ goal.name }}</h6>
+                                <p class="text-muted small mb-1">Target: {{ currency_symbol }}{{ goal.target_amount|floatformat:2 }}</p>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">{{ goal.current_amount|floatformat:0 }}%</span>
+                                    <span class="small text-muted">Due: {{ goal.target_date|date:"M d, Y" }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar {% if goal.current_amount < 50 %}bg-danger{% elif goal.current_amount < 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ goal.current_amount|floatformat:0 }}%; max-width: 100%;" 
+                                         aria-valuenow="{{ goal.current_amount|floatformat:0 }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-bullseye fa-2x mb-3 text-muted"></i>
+                    <p class="mb-0">No financial goals set up yet</p>
+                    <a href="{% url 'goal_create' %}" class="btn btn-sm btn-primary mt-2">
+                        <i class="fas fa-plus me-1"></i>Create Goal
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Income/Expense Chart
+    const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
+    const incomeExpenseChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ months|safe }},
+            datasets: [
+                {
+                    label: 'Income',
+                    backgroundColor: 'rgba(76, 201, 240, 0.7)',
+                    borderColor: 'rgba(76, 201, 240, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    data: {{ income_data|safe }},
+                },
+                {
+                    label: 'Expenses',
+                    backgroundColor: 'rgba(247, 37, 133, 0.7)',
+                    borderColor: 'rgba(247, 37, 133, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    data: {{ expense_data|safe }},
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                        font: {
+                            family: "'Poppins', sans-serif",
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                    titleFont: {
+                        family: "'Poppins', sans-serif",
+                        size: 14
+                    },
+                    bodyFont: {
+                        family: "'Poppins', sans-serif",
+                        size: 12
+                    },
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            family: "'Poppins', sans-serif",
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(200, 200, 200, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            family: "'Poppins', sans-serif",
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+    
+    // Chart type toggle
+    document.querySelectorAll('[data-chart-type]').forEach(button => {
+        button.addEventListener('click', function() {
+            const chartType = this.getAttribute('data-chart-type');
+            
+            // Update active button
+            document.querySelectorAll('[data-chart-type]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Update chart type
+            incomeExpenseChart.config.type = chartType;
+            incomeExpenseChart.update();
+        });
+    });
+
+    // Add animation to savings rate circle
+    const savingsCircle = document.querySelector('.savings-rate-circle');
+    if (savingsCircle) {
+        savingsCircle.style.background = `conic-gradient(#4361ee 0%, #e0e0e0 0%)`;
+        setTimeout(() => {
+            savingsCircle.style.transition = 'background 1.5s ease-out';
+            savingsCircle.style.background = `conic-gradient(#4361ee {{ savings_rate }}%, #e0e0e0 0%)`;
+        }, 300);
+    }
+
+    // Add hover effects to cards
+    document.querySelectorAll('.card-stats').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+            this.style.boxShadow = '0 16px 30px rgba(0, 0, 0, 0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+            this.style.boxShadow = '';
+        });
+    });
+});
+</script>
+{% endblock %}

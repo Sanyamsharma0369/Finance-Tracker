@@ -1,0 +1,150 @@
+{% extends 'core/admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Budget Management | Finance Tracker{% endblock %}
+{% block header %}Budget Management{% endblock %}
+
+{% block content %}
+<!-- Filter Card -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Budget Filters</h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="filter-form">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="user_id" class="form-label">User</label>
+                    <select name="user_id" id="user_id" class="form-select">
+                        <option value="">All Users</option>
+                        {% for user_obj in users %}
+                        <option value="{{ user_obj.id }}" {% if selected_user_id == user_obj.id|stringformat:"i" %}selected{% endif %}>{{ user_obj.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="period" class="form-label">Period</label>
+                    <select name="period" id="period" class="form-select">
+                        <option value="">All Periods</option>
+                        <option value="monthly" {% if selected_period == 'monthly' %}selected{% endif %}>Monthly</option>
+                        <option value="quarterly" {% if selected_period == 'quarterly' %}selected{% endif %}>Quarterly</option>
+                        <option value="annual" {% if selected_period == 'annual' %}selected{% endif %}>Annual</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i> Filter Budgets
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Budgets List Card -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold">Budgets</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered admin-table" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="15%">User</th>
+                        <th width="15%">Category</th>
+                        <th width="15%">Amount</th>
+                        <th width="10%">Period</th>
+                        <th width="15%">Created</th>
+                        <th width="15%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for budget in budgets %}
+                    <tr>
+                        <td>{{ budget.id }}</td>
+                        <td>{{ budget.user.username }}</td>
+                        <td>{{ budget.category.name }}</td>
+                        <td>${{ budget.amount }}</td>
+                        <td>{{ budget.period|title }}</td>
+                        <td>{{ budget.created_at|date:"M d, Y" }}</td>
+                        <td class="text-center">
+                            <div class="action-buttons">
+                                <a href="{% url 'admin_budget_edit' budget.id %}" class="btn btn-sm btn-primary" title="Edit Budget">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'admin_budget_delete' budget.id %}" class="btn btn-sm btn-danger" title="Delete Budget" 
+                                   onclick="return confirm('Are you sure you want to delete this budget? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No budgets found matching the criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Budget Summary</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 text-center">
+                            <h6 class="text-muted mb-1">Total Budgets</h6>
+                            <h4>{{ budgets|length }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 text-center">
+                            <h6 class="text-muted mb-1">Total Allocated</h6>
+                            <h4>${{ budgets|length|default:0 }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <p>You can manage all budget data across users. Use the filters to narrow down results.</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'admin_reports' %}" class="btn btn-primary">
+                        <i class="fas fa-chart-bar me-2"></i> View Detailed Reports
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt me-2"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize DataTable with search and sorting
+        $('#dataTable').DataTable({
+            order: [[0, 'desc']]
+        });
+    });
+</script>
+{% endblock %} 

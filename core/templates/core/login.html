@@ -1,0 +1,163 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load core_extras %}
+
+{% block title %}Login - Finance Tracker{% endblock %}
+
+{% block sidebar %}
+<!-- Hide sidebar on login page -->
+{% endblock %}
+
+{% block auth_content %}
+<div class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="text-center mb-5 text-white">
+                    <h1 class="display-4"><i class="fas fa-wallet me-3"></i>Finance Tracker</h1>
+                    <p class="lead">Manage your finances with ease</p>
+                </div>
+                <div class="card shadow-lg rounded-4 border-0">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h4 class="text-center mb-0">Welcome Back</h4>
+                        <p class="text-center text-muted small">Log in to your account</p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <form method="post" id="loginForm" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- Username field -->
+                            <div class="mb-3">
+                                <label for="id_username" class="form-label">
+                                    <i class="fas fa-user text-muted me-2"></i>Username
+                                </label>
+                                <input type="text" name="username" id="id_username" class="form-control" placeholder="Your username" required>
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Password field -->
+                            <div class="mb-3">
+                                <label for="id_password" class="form-label">
+                                    <i class="fas fa-lock text-muted me-2"></i>Password
+                                </label>
+                                <input type="password" name="password" id="id_password" class="form-control" placeholder="Your password" required>
+                                {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" name="remember" id="id_remember" class="form-check-input">
+                                <label for="id_remember" class="form-check-label">Remember me</label>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Log In
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-4 text-center">
+                        <p class="mb-2"><a href="{% url 'password_reset' %}" class="text-decoration-none">Forgot your password?</a></p>
+                        <p class="mb-0">Don't have an account? <a href="{% url 'register' %}" class="text-decoration-none fw-bold">Sign Up</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('loginForm');
+        
+        // Client-side form validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const username = document.getElementById('id_username');
+            const password = document.getElementById('id_password');
+            
+            // Username validation
+            if (!username.value.trim()) {
+                isValid = false;
+                highlightError(username, 'Please enter your username');
+            } else {
+                removeError(username);
+            }
+            
+            // Password validation
+            if (!password.value.trim()) {
+                isValid = false;
+                highlightError(password, 'Please enter your password');
+            } else {
+                removeError(password);
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to the first error
+                const firstError = document.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        // Helper functions
+        function highlightError(element, message) {
+            element.classList.add('is-invalid');
+            // Create error message if it doesn't exist
+            let errorDiv = element.parentNode.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                element.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = message;
+        }
+        
+        function removeError(element) {
+            element.classList.remove('is-invalid');
+            element.classList.add('is-valid');
+        }
+        
+        // Animated entrance for form elements
+        const formElements = document.querySelectorAll('#loginForm .mb-3, #loginForm .d-grid');
+        formElements.forEach((element, index) => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            setTimeout(() => {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, 100 + (index * 100));
+        });
+    });
+</script>
+{% endblock %} 

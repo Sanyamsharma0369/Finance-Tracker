@@ -1,0 +1,159 @@
+{% extends 'core/admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Edit User | Finance Tracker{% endblock %}
+{% block header %}Edit User: {{ user_obj.username }}{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Edit User</h6>
+        <a href="{% url 'admin_user_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back to Users
+        </a>
+    </div>
+    <div class="card-body admin-form">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Update user information below. Leave password field blank to keep the current password.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <h5 class="mb-3 border-bottom pb-2">Account Information</h5>
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user_obj.username }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user_obj.email }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password (leave blank to keep current)</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <h5 class="mb-3 border-bottom pb-2">User Information</h5>
+                    
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_obj.first_name }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user_obj.last_name }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ profile.phone_number }}">
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if user_obj.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">User is active</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff" {% if user_obj.is_staff %}checked{% endif %}>
+                                <label class="form-check-label" for="is_staff">Admin privileges</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="is_commercial" name="is_commercial" {% if profile.is_commercial %}checked{% endif %}>
+                        <label class="form-check-label" for="is_commercial">Commercial account</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4 commercial-details" style="display: {% if profile.is_commercial %}block{% else %}none{% endif %};">
+                <div class="col-md-12">
+                    <h5 class="mb-3 border-bottom pb-2">Commercial Account Details</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="company_name" class="form-label">Company Name</label>
+                            <input type="text" class="form-control" id="company_name" name="company_name" value="{{ commercial_data.company_name|default:'' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="business_type" class="form-label">Business Type</label>
+                            <input type="text" class="form-control" id="business_type" name="business_type" value="{{ commercial_data.business_type|default:'' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="registration_number" class="form-label">Registration Number</label>
+                            <input type="text" class="form-control" id="registration_number" name="registration_number" value="{{ commercial_data.registration_number|default:'' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="tax_id" class="form-label">Tax ID</label>
+                            <input type="text" class="form-control" id="tax_id" name="tax_id" value="{{ commercial_data.tax_id|default:'' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="business_address" class="form-label">Business Address</label>
+                            <textarea class="form-control" id="business_address" name="business_address" rows="3">{{ commercial_data.business_address|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="is_approved" name="is_approved" {% if commercial_data.is_approved %}checked{% endif %}>
+                        <label class="form-check-label" for="is_approved">Approved</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'admin_user_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle commercial account details
+        const isCommercialCheckbox = document.getElementById('is_commercial');
+        const commercialDetails = document.querySelector('.commercial-details');
+        
+        function toggleCommercialDetails() {
+            if (isCommercialCheckbox.checked) {
+                commercialDetails.style.display = 'block';
+            } else {
+                commercialDetails.style.display = 'none';
+            }
+        }
+        
+        // Add change event listener
+        isCommercialCheckbox.addEventListener('change', toggleCommercialDetails);
+    });
+</script>
+{% endblock %} 

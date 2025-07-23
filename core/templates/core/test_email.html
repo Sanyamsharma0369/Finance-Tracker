@@ -1,0 +1,78 @@
+{% extends "core/base.html" %}
+
+{% block title %}Test Email Configuration - Finance Tracker{% endblock %}
+
+{% block header %}
+Test Email Configuration
+{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary bg-opacity-10">
+        <h5 class="mb-0 text-primary"><i class="fas fa-envelope me-2"></i>Email Configuration Test</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <p>Test your email configuration by sending a test email. This will help verify that your SMTP settings are correctly configured.</p>
+                
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Send test email to:</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ user_email }}" required
+                               {% if not is_staff %}readonly{% endif %}>
+                        {% if not is_staff %}
+                        <div class="form-text">Only admin users can test with different email addresses.</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Send Test Email
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5><i class="fas fa-info-circle me-2"></i>Email Settings</h5>
+                        <ul class="list-unstyled mt-3">
+                            <li><strong>Backend:</strong> SMTP</li>
+                            <li><strong>Host:</strong> smtp.gmail.com</li>
+                            <li><strong>Port:</strong> 587</li>
+                            <li><strong>TLS:</strong> Enabled</li>
+                        </ul>
+                        <hr>
+                        <p class="small text-muted"><i class="fas fa-exclamation-triangle me-1"></i> Make sure to update settings.py with your email credentials.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mt-4">
+    <div class="card-header bg-info bg-opacity-10">
+        <h5 class="mb-0 text-info"><i class="fas fa-cog me-2"></i>Gmail App Password Instructions</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <h6><i class="fas fa-key me-2"></i>How to create an App Password for Gmail:</h6>
+                <ol class="mt-3">
+                    <li>Go to your <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer">Google Account Security Settings</a>.</li>
+                    <li>Enable 2-Step Verification if you haven't already.</li>
+                    <li>Under "Signing in to Google," select "App passwords".</li>
+                    <li>At the bottom, choose "Select app" and then "Other (Custom name)".</li>
+                    <li>Enter "Finance Tracker" and click "Generate".</li>
+                    <li>Google will display a 16-character password. Copy this password.</li>
+                    <li>Use this password in your settings.py file for the EMAIL_HOST_PASSWORD setting.</li>
+                </ol>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>Never use your regular Google account password. Always use an App Password for applications like this.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
